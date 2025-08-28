@@ -157,6 +157,11 @@ export const getCart = async (req, res) => {
 export const updateCartItem = async (req, res) => {
     try {
         const { userId, productId, size, color, quantity } = req.body;
+        console.log(userId);
+        console.log(productId);
+        console.log(size);
+        console.log(color);
+        console.log(quantity);
         
         if (!userId || !productId || !size || !color || quantity === undefined) {
             return res.status(400).json({ message: 'All fields are required' });
@@ -169,9 +174,7 @@ export const updateCartItem = async (req, res) => {
         }
         
         const productIndex = cart.products.findIndex(
-            p => p.productId.toString() === productId && 
-                 p.size === size && 
-                 p.color === color
+            p => p.productId.toString() === productId 
         );
         
         if (productIndex === -1) {

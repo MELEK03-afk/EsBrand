@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { Link ,useNavigate} from 'react-router-dom'
 import axios from 'axios'
-import { CircleX,Menu } from 'lucide-react';
+import { CircleX,Menu,House  } from 'lucide-react';
 import toast,{Toaster}  from 'react-hot-toast'
 const SeConnect = () => {
     const [from, setForm] = useState(true)
@@ -169,6 +169,7 @@ const SeConnect = () => {
         <div className='SeConnect'>
             <div className="SeConnect-1"></div>
             <div className="SeConnect-2">
+                <House onClick={()=>navigate("/")} size={23}  strokeWidth={3} style={{position:"absolute",cursor:'pointer',top:"10px",right:"10px"}}/>
                 <div key={from ? "sign-in" : "sign-up"} className="fade-in">
                     <Toaster/>
                     {DisplayForm()}

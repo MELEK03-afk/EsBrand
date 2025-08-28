@@ -13,7 +13,7 @@ router.post('/Subscribe',Subscribe)
 // Cart routes
 router.post('/AddToCart', protect, addToCart)
 router.get('/GetProductCart/:userId', protect, getCart)
-router.put('/cart-update', protect, updateCartItem)
-router.delete('/DeletePrdCart', protect, removeFromCart)
+router.put('/cart-update', updateCartItem)
+router.delete('/DeletePrdCart', removeFromCart)
 
 export default router
