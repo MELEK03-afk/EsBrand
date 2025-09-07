@@ -1406,6 +1406,102 @@ input::placeholder {
   gap: 3%;
 }
 
+/* Layout with sidebar filters + grid */
+.productsLayout{
+  width: 100%;
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 24px;
+  padding: 24px 32px;
+}
+
+.filtersSidebar{
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+  height: fit-content;
+  max-height: 70vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.filterHeader{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 16px 8px 16px;
+  border-bottom: 1px solid #eee;
+}
+
+.filterSectionTitle{
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.filterClearBtn{
+  border: 0;
+  background: #111827;
+  color: white;
+  padding: 6px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.filterClearBtn:disabled{
+  background: #cfcfcf;
+  color: #777;
+  cursor: not-allowed;
+}
+
+.colorFiltersList{
+  padding: 8px 12px 12px 12px;
+  overflow: auto;
+}
+.colorFiltersList::-webkit-scrollbar{
+  width: 6px;
+}
+.colorFiltersList::-webkit-scrollbar-thumb{
+  background: #e5e7eb;
+  border-radius: 6px;
+}
+
+.colorFilterItem{
+  display: grid;
+  grid-template-columns: 20px 1fr auto;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 8px;
+  border-radius: 8px;
+  transition: background 0.2s;
+}
+.colorFilterItem:hover{ background: #f5f7fb; }
+.colorFilterItem.selected{ background: #eef2ff; }
+.colorFilterItem input{ display: none; }
+
+.colorSwatch{
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid #111827;
+}
+.colorName{ font-size: 14px; color: #111827; }
+.colorCountPill{
+  font-size: 12px;
+  color: #111827;
+  background: #f1f5f9;
+  border: 1px solid #e5e7eb;
+  padding: 2px 6px;
+  border-radius: 8px;
+}
+.emptyFilterState{ color: #6b7280; font-size: 14px; padding: 10px; }
+
+@media (max-width: 900px){
+  .productsLayout{ grid-template-columns: 1fr; }
+  .filtersSidebar{ order: 2; }
+}
+
 .productU{
   cursor: pointer;
   width: 22%;

@@ -3,6 +3,7 @@ import { useParams, useLocation } from 'react-router-dom';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import toast, { Toaster } from 'react-hot-toast';
+import ColorFilter from './ColorFilter';
 
 const ProductsU = () => {
   const { subcategoryName } = useParams();
@@ -14,6 +15,7 @@ const ProductsU = () => {
   const [hoveredProductId, setHoveredProductId] = useState(null);
   const [categories, setCategories] = useState([]);
   const [subcategories, setSubcategories] = useState([]);
+  const [colorFilters, setColorFilters] = useState(new Set());
   const navigate = useNavigate();
 
   // Fetch categories only once on mount
@@ -65,8 +67,8 @@ const ProductsU = () => {
     setSubcatSelected(subcategoryId || null);
   }, [subcategoryId]);
 
-  // Memoize filtered products
-  const filteredProducts = useMemo(() => {
+  // Base filters (category, subcategory, genre)
+  const baseFilteredProducts = useMemo(() => {
     let filtered = products;
     if (parentCategoryId) {
       filtered = filtered.filter(product => product.categoryId === parentCategoryId);
@@ -80,6 +82,28 @@ const ProductsU = () => {
     }
     return filtered;
   }, [products, parentCategoryId, subCatSelected, genre]);
+
+  // Compute available colors with counts from the base filtered set
+  const availableColors = useMemo(() => {
+    const colorToCount = new Map();
+    for (const product of baseFilteredProducts) {
+      const colors = Array.isArray(product.color) ? product.color : [];
+      for (const c of colors) {
+        const key = String(c);
+        colorToCount.set(key, (colorToCount.get(key) || 0) + 1);
+      }
+    }
+    return Array.from(colorToCount.entries()).map(([name, count]) => ({ name, count }));
+  }, [baseFilteredProducts]);
+
+  // Apply color filters (if any selected)
+  const filteredProducts = useMemo(() => {
+    if (!(colorFilters instanceof Set) || colorFilters.size === 0) return baseFilteredProducts;
+    return baseFilteredProducts.filter(p => {
+      const colors = Array.isArray(p.color) ? p.color : [];
+      return colors.some(c => colorFilters.has(String(c)));
+    });
+  }, [baseFilteredProducts, colorFilters]);
 
   // Unified image getter
   const getImageByColor = (product, color, index = 0) => {
@@ -100,6 +124,16 @@ const ProductsU = () => {
     }
     return '';
   };
+
+  const toggleColorFilter = (name) => {
+    setColorFilters(prev => {
+      const next = new Set(prev);
+      if (next.has(name)) next.delete(name); else next.add(name);
+      return next;
+    });
+  };
+
+  const clearColorFilters = () => setColorFilters(new Set());
 
   return (
     <div style={{ width: '100%' }}>
@@ -139,7 +173,14 @@ const ProductsU = () => {
           ))}
         </div>
       </div>
-      <div className='ProductsU'>
+      <div className='productsLayout'>
+        <ColorFilter
+          colors={availableColors}
+          selected={colorFilters}
+          onToggle={toggleColorFilter}
+          onClear={clearColorFilters}
+        />
+        <div className='ProductsU'>
         {filteredProducts.map(product => {
           const color = selectedColors[product._id];
           const mainImg = getImageByColor(product, color);
@@ -228,6 +269,7 @@ const ProductsU = () => {
             </div>
           );
         })}
+        </div>
       </div>
     </div>
   );
