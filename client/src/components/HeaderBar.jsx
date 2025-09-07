@@ -1,5 +1,5 @@
 import React,{useState,useEffect,useMemo} from 'react'
-import { Menu,Search,UserRound ,X ,User,ShoppingBag ,Edit2,Trash2  } from 'lucide-react';
+import { Menu,Search,UserRound ,X ,LogOut,User,ShoppingBag,ShieldUser,Edit2,Trash2  } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import toast, { Toaster } from 'react-hot-toast';
 import axios from 'axios'
@@ -8,7 +8,7 @@ function HeaderBar({showBag,setShowBag}   ) {
   const [showMenu,setShowMenu]=useState(false)
   const [genre,setGenre]=useState('men')
   const user=JSON.parse(localStorage.getItem('user'))
-  const [showAdmin,setShowAdmin] =useState(false)
+  const [ShowUser,setShowUser] =useState(false)
   const [categories, setCategories] = useState([]);
   const [subcategories, setSubcategories] = useState([]);
   const [productCart, setProductCart] = useState([]);
@@ -24,6 +24,7 @@ function HeaderBar({showBag,setShowBag}   ) {
   const [showBagEdit, setShowBagEdit] = useState(false)
   const [searchInput, setSearchInput] = useState('')
   const navigate = useNavigate();
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   // Calculate total using useMemo
   const total = useMemo(() => {
@@ -44,7 +45,12 @@ function HeaderBar({showBag,setShowBag}   ) {
       }
     }
   };
-
+  const handleLogout = () => {
+    localStorage.clear();
+    setIsDropdownOpen(false);
+    setIsMobileMenuOpen(false);
+    navigate('/');
+  };
   const getProductCart = async () => {  
     if (!user?.id) return;
     try {
@@ -116,7 +122,6 @@ function HeaderBar({showBag,setShowBag}   ) {
 
   const getImageByColor = (product, color, index = 0) => {
     if (!product?.images?.length) {
-      console.log('No images found in product');
       return '';
     }
     
@@ -252,10 +257,10 @@ function HeaderBar({showBag,setShowBag}   ) {
   };
 
   return (
-    <div  className='HeaderBar slide-down'>
+    <div   className='HeaderBar slide-down'>
       <Toaster/>
       <div className='HeaderBar-1'>
-        <Menu onClick={()=>(setShowMenu(!showMenu),setShowBag(false))} size={25} strokeWidth={3} style={{color:"black",marginLeft:"1%",cursor:"pointer"}}/>
+        <Menu onClick={()=>(setShowMenu(!showMenu),setShowUser(false),setShowBag(false))} size={25} strokeWidth={3} style={{color:"black",marginLeft:"1%",cursor:"pointer"}}/>
         <Link className='h1' to='/' style={{textDecoration:"none"}}>
           <h1 onClick={()=>(setShowMenu(false),setShowBag(false))}>Es</h1>
         </Link>
@@ -278,23 +283,21 @@ function HeaderBar({showBag,setShowBag}   ) {
         <div className='HeaderBar-3'> 
           <div className="HeaderBar-4">
             {user ? (
-              <User onClick={()=>(setShowMenu(false),setShowBag(false),navigate('/profile'))} style={{cursor:"pointer"}}/> 
+              <User  onClick={()=>(setShowMenu(false),setShowUser(!ShowUser),setIsDropdownOpen(true),setShowBag(false))} style={{cursor:"pointer"}}/> 
             ):(
               <Link to='/Seconnect'onClick={()=>(setShowMenu(false),setShowBag(false))}>
               <button >Se Connect <UserRound size={15} style={{position:"relative",left:"5px",top:"2px"}}/></button>
               </Link>
             )}
           </div>
-          <ShoppingBag onClick={()=>(setShowMenu(false),setShowBag(!showBag))} style={{cursor:"pointer"}}/>
+          <ShoppingBag onClick={()=>(setShowMenu(false),setShowUser(false),setShowBag(!showBag))} style={{cursor:"pointer"}}/>
           {
             productCart.cart?.products?.length === 0 ?(
               ''
             ):(
               <div className='CountPCart' style={{display:!user?'none':''}} onClick={()=>(setShowMenu(false),setShowBag(!showBag))}>{productCart.cart?.products?.length}</div>
             )
-          }
-          { user?.role === 'Admin' || user?.role === 'Owner'?
-          (<Menu style={{cursor:"pointer"}} onClick={()=> setShowAdmin(!showAdmin)}/>):""}       
+          }     
         </div>
       </div> 
       <div className='MenuUser' style={{height : showMenu === true ?'512px':"0px"}}>
@@ -361,7 +364,12 @@ function HeaderBar({showBag,setShowBag}   ) {
           </div>
         ):(
           <div className='PdSb'>
-            <X onClick={()=>(setShowBag(false),setShowBagEdit(false))} style={{display: showBag ?"":"none",cursor:"pointer", marginLeft:"90%"}}/>
+            <X onClick={() => {
+              setShowBagEdit(false); // first
+              setTimeout(() => {
+                setShowBag(false); // after 0.5s
+              }, 400);
+            }} style={{display: showBag ?"":"none",cursor:"pointer", marginLeft:"90%"}}/>
             <h3 style={{textAlign:"center",position:"relative",top:"0px",display: showBag ?"":"none"}}>ShoppingBag <ShoppingBag style={{position:"relative",top:"5px",left:"1%"}}/> </h3>
             <div className='PdSb-1'>
             {productCart?.cart?.products?.map((product, index) => {
@@ -370,14 +378,14 @@ function HeaderBar({showBag,setShowBag}   ) {
               
               return (
                 <div className='PdSp-2' key={product._id || index}>
-                  <img src={imageUrl} alt="Product" onError={(e) => {
+                  {imageUrl && <img src={imageUrl} alt="Product" onError={(e) => {
                     console.log('Image failed to load:', imageUrl);
                     e.target.style.display = 'none';
-                  }} />
+                  }} />}
                   <div className='PdSp-3'>
                     <div className='PdSp-4'>
                       <h4>{ product.productId?.price}TND</h4>
-                      <Edit2 size={19} onClick={()=>(setShowBagEdit(!showBagEdit),setquantity(product.quantity),GetPById(product.productId._id))} style={{cursor:"pointer"}} />
+                      <Edit2 size={19} onClick={()=>(setShowBagEdit(true),setquantity(product.quantity),GetPById(product.productId._id))} style={{cursor:"pointer"}} />
                       <Trash2 size={19} style={{cursor:"pointer"}} onClick={() => DeletePrdCart(product)} />
                     </div>
                     <p>{product.productId?.name}</p>
@@ -400,10 +408,7 @@ function HeaderBar({showBag,setShowBag}   ) {
       <div className='ShoppingBag-Edit' style={{width: showBagEdit === true ?'29%':"0"}}>
         <X onClick={()=>setShowBagEdit(false)} style={{display: showBagEdit ?"":"none",cursor:"pointer", marginLeft:"90%"}}/>
         <h3 style={{display: showBagEdit ?"":"none",margin:"0"}}>{name}</h3>
-        <img 
-          src={image} 
-          alt="Product" 
-        />
+        {image && <img src={image} alt="Product" />}
         <div className="colorSwatches">
           {colors.map((color, index) => {
             const imgUrl = getImageByColor(product, color);
@@ -451,25 +456,33 @@ function HeaderBar({showBag,setShowBag}   ) {
           <button className='Update' onClick={updateCartItem} >Update</button>
         </div>
       </div>
-      {
-        showAdmin ?(
-      <div className="adminLiens">
-          <X onClick={() => setShowAdmin(false)} size={25}style={{marginLeft:"90%",cursor:"pointer"}} />
-          <h1 >
-            {user?.role === 'Admin' ? 'Admin Access' : 'Owner Access'}
-          </h1>                
-          <Link
-            to={user?.role === 'Admin' ? '/ManagementDashboard' : '/ManagementDashboard'}
-            onClick={() => {
-              // Removed undefined variables
-            }} className='LinkToDash'>
-            {user?.role === 'Admin' ? 'Enter Admin Panel' : 'Enter Owner Panel'}
-          </Link>
-      </div>
-        ):(
-          ""
-        )
-      }
+      {user && ShowUser && (
+            <div className="user-menu">
+              <div className='user-header'>
+                <div className="user-info">
+                  <div className="user-name">{user?.firstName} {user?.lastName}</div>
+                  <div className="user-email">{user?.email}</div>
+                  <div className="user-role">
+                    {user?.role === 'Admin' && 'Administrateur'}
+                    {user?.role === 'Technician' && 'Technicien'}
+                    {user?.role === 'client' && 'Client'}
+                  </div>
+                </div>
+                
+              </div>
+              <Link to="/profile" onClick={()=>(setIsDropdownOpen(false),setShowUser(false))} className="dropdown-item"><User size={16} /> Mon Profil</Link>
+              {(user?.role === 'Admin' || user?.role === 'Owner') && (
+                <Link
+                  to="/ManagementDashboard"
+                  onClick={() => (setIsDropdownOpen(false),setShowUser(false))}
+                  className="dropdown-item"
+                >
+                  <ShieldUser size={16} /> Administration
+                </Link>
+              )}
+                <button onClick={handleLogout} className="dropdown-item"><LogOut size={16} /> Déconnexion</button>
+            </div>
+          )}
     </div>
   )
 }

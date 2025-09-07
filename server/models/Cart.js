@@ -7,8 +7,8 @@ const cartSchema = new mongoose.Schema({
       productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' },
       quantity: Number,
       size: String,
-      color: [String],
-      color: String
+      color:String  // or [String] if you want multiple colors
+
     }
   ],
   updatedAt: { type: Date, default: Date.now }

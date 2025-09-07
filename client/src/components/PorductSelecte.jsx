@@ -199,9 +199,13 @@ const ProductSelect = ({ setShowBag }) => {
       {product && (
         <div style={{ display: 'flex', justifyContent: "center", alignItems: "flex-end", width: "100%", gap: "48px" }}>
           <div className="gallery">
-            <ArrowLeft style={{ cursor: "pointer" }} onClick={handlePrevImage} />
+            <div className='Arrow' onClick={handlePrevImage}>
+              <ArrowLeft style={{ cursor: "pointer" }}  />
+            </div>
             <img src={image} alt={name} className="mainImage" />
-            <ArrowRight style={{ cursor: "pointer" }} onClick={handleNextImage} />
+            <div className='Arrow' onClick={handleNextImage}>
+              <ArrowRight style={{ cursor: "pointer" }}  />
+            </div>
           </div>
 
           <div className="details">
@@ -271,7 +275,9 @@ const ProductSelect = ({ setShowBag }) => {
       )}
 
       <div className='SubcategoryProduct' style={{ display: 'flex', alignItems: 'center', marginTop: 32 }}>
-        <ArrowLeft size={30} onClick={handleSubPrev} style={{ cursor: 'pointer' }} />
+        <div className='Arrow' onClick={handleSubPrev}>
+          <ArrowLeft size={30}  style={{ cursor: 'pointer' }} />
+        </div>
         <div className={`productsSub${slideDirection ? ' ' + slideDirection : ''}`}>
           {allProducts.slice(subListStart, subListStart + 3).map((prod) => {
             const imgUrl = getSafeImageUrl(prod.images[0]);
@@ -289,7 +295,9 @@ const ProductSelect = ({ setShowBag }) => {
             );
           })}
         </div>
-        <ArrowRight size={30} onClick={handleSubNext} style={{ cursor: 'pointer' }} />
+        <div className='Arrow' onClick={handleSubNext}>
+          <ArrowRight size={30}  style={{ cursor: 'pointer' }} />
+        </div>
       </div>
 
       <div className='footer'>

@@ -10,9 +10,9 @@ const UserBord = () => {
   const [searchTerm, setSearchTerm] = useState(""); // State for search input
   const user = JSON.parse(localStorage.getItem('user'));
   const [editMode, setEditMode] = useState(null);
-  const [Users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true); // State for loading
   const [updatedName, setUpdatedName] = useState(''); // Added missing state
+  const [Users, setUsers] = useState([]);
 
 
     const getUser = async () => {  
@@ -155,7 +155,7 @@ const UserBord = () => {
       <Toaster/>
       <div className="HeaderMangment">
           <h2>User Mangment Dashbord</h2>
-          <div className='recherche'>
+          <div className='recherche-2'>
             <input onChange={(e) =>setSearchTerm(e.target.value)} type="text" placeholder='Search with E-mail' />
             <Search style={{cursor:"pointer",color:"black"}}/>
         </div>

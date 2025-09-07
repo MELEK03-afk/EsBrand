@@ -4,7 +4,7 @@ import jwt from "jsonwebtoken"
 import Cart from "../../models/Cart.js"
 import Abonne from "../../models/Abonne.js"
 import validator from 'validator'
-
+import Product from "../../models/Product.js"
 
 
 export const singUp = async(req,res)=>{
@@ -155,49 +155,46 @@ export const getCart = async (req, res) => {
 };
 
 export const updateCartItem = async (req, res) => {
-    try {
-        const { userId, productId, size, color, quantity } = req.body;
-        console.log(userId);
-        console.log(productId);
-        console.log(size);
-        console.log(color);
-        console.log(quantity);
-        
-        if (!userId || !productId || !size || !color || quantity === undefined) {
-            return res.status(400).json({ message: 'All fields are required' });
-        }
-        
-        const cart = await Cart.findOne({ userId });
-        
-        if (!cart) {
-            return res.status(404).json({ message: 'Cart not found' });
-        }
-        
-        const productIndex = cart.products.findIndex(
-            p => p.productId.toString() === productId 
-        );
-        
-        if (productIndex === -1) {
-            return res.status(404).json({ message: 'Product not found in cart' });
-        }
-        
-        if (quantity <= 0) {
-            // Remove product if quantity is 0 or negative
-            cart.products.splice(productIndex, 1);
-        } else {
-            // Update quantity
-            cart.products[productIndex].quantity = quantity;
-        }
-        
-        cart.updatedAt = new Date();
-        await cart.save();
-        
-        return res.status(200).json({ message: 'Cart updated successfully', cart });
-    } catch (error) {
-        console.error('Error updating cart:', error);
-        return res.status(500).json({ message: 'Failed to update cart' });
+  try {
+    const { userId, productId, size, color, quantity } = req.body;
+    if (!userId || !productId || !size || !color || quantity === undefined) {
+      return res.status(400).json({ message: 'All fields are required' });
     }
+
+    const cart = await Cart.findOne({ userId });
+    console.log(cart);
+    
+    if (!cart) {
+      return res.status(404).json({ message: 'Cart not found' });
+    }
+
+    const productIndex = cart.products.findIndex(
+    p =>
+        p.productId.toString() === productId &&
+        p.size.toLowerCase() === size.toLowerCase() &&
+        p.color.toLowerCase() === color.toLowerCase()
+    );
+
+    if (productIndex === -1) {
+        return res.status(404).json({ message: 'Product not found in cart' });
+    }
+
+    if (quantity <= 0) {
+        cart.products.splice(productIndex, 1);
+    } else {
+        cart.products[productIndex].quantity = quantity;
+    }
+
+    cart.updatedAt = new Date();
+    await cart.save();
+
+    return res.status(200).json({ message: 'Cart updated successfully', cart });
+  } catch (error) {
+    console.error('Error updating cart:', error);
+    return res.status(500).json({ message: 'Failed to update cart' });
+  }
 };
+
 
 export const removeFromCart = async (req, res) => {
     const { userId, productId, size, color } = req.body;
@@ -266,3 +263,56 @@ export const Subscribe = async(req,res)=>{
 const GenerateToken =(id)=>{
     return jwt.sign({id},process.env.JWT_secret,{expiresIn:"15d"})
 }
+
+
+
+export const getFilters = async (req, res) => {
+  try {
+    const {  subcategoryId, genre } = req.query; // ✅ use query, not body
+
+    const matchStage = {};
+    if (subcategoryId) matchStage.subcategoryId = subcategoryId;
+    if (genre) matchStage.genre = genre;
+
+    const result = await Product.aggregate([
+      { $match: matchStage },
+      {
+        $facet: {
+          colors: [
+                { $unwind: "$color" },
+                { 
+                    $group: { 
+                    _id:  "$color" , // ✅ normalize to lowercase
+                    count: { $sum: 1 }
+                    } 
+                },
+                { $sort: { _id: 1 } }
+            ],
+          sizes: [
+            { $unwind: "$size" },
+            {
+                $project: {
+                sizeArray: {
+                    $cond: [
+                    { $regexMatch: { input: "$size", regex: /^\[.*\]$/ } },
+                    { $map: { input: { $split: [{ $trim: { input: "$size", chars: '[]"'} }, '","'] }, as: "s", in: "$$s" } },
+                    ["$size"]
+                    ]
+                }
+                }
+            },
+            { $unwind: "$sizeArray" },
+            { $group: { _id: "$sizeArray", count: { $sum: 1 } } },
+            { $sort: { _id: 1 } },
+        ],
+
+        }
+      }
+    ]);
+
+    res.json(result[0]);
+  } catch (err) {
+    console.error("getFilters error:", err);
+    res.status(500).json({ error: err.message });
+  }
+};

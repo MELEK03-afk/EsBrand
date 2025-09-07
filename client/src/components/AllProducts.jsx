@@ -197,8 +197,10 @@ const AllProducts = () => {
       </div>
 
       {modify && (
-        <div className='MProduct'>
-          <ModifyProduct setModify={setModify} id={IdProduct} />
+        <div className='MProductblur'>
+          <div className='MProduct'>
+            <ModifyProduct setModify={setModify} id={IdProduct} />
+          </div>
         </div>
       )}
 

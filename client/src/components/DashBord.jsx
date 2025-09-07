@@ -1,12 +1,17 @@
 import React, { useState, useEffect } from "react";
-import { CircleChevronUp,Package , SquareArrowRight,MailQuestionMark,LayoutGrid,ClipboardList,PackagePlus ,Plus     } from 'lucide-react';
+import { MessageCircleWarning,Package , SquareArrowRight,User,LayoutGrid,ClipboardList,PackagePlus ,Plus     } from 'lucide-react';
 import userI from '../images/user.png'
 import { Link, Outlet } from 'react-router-dom';
+import axios from "axios";
 import {BeatLoader } from 'react-spinner'
 const DashBord = () => {
     const [Message, setMessage] = useState([]);
     const [selecteMenu, setSelecteMenu] = useState(() => localStorage.getItem('selecteMenu') || 'Dashbord');
     const user = JSON.parse(localStorage.getItem('user'));
+    const [Users, setUsers] = useState([]);
+    const [Categorys, setCategorys] = useState([]);
+    const [Products, setProducts] = useState([]);
+  
   const handleMenuSelect = (menu) => {
     setSelecteMenu(menu);
     localStorage.setItem('selecteMenu', menu);
@@ -34,9 +39,56 @@ const DashBord = () => {
       
   //   }
   // }
-
+    const getUser = async () => {  
+    try {
+      // TODO: Replace hardcoded API URL with environment variable for production
+      const res = await axios.get("http://localhost:2025/api/Owner/getUser  ",{
+        headers: {
+          'Authorization': `Bearer ${user.token}`
+          }
+      });
+      setUsers(res.data);      
+      setTimeout(() => {
+        setLoading(false);
+      }, 4000);
+    } catch (error) {
+      console.log(error);
+      if (error.response?.status !== 200) {
+        toast.error(error.response?.data?.message)
+      }
+    }
+  };
+    const getCategory = async () => {  
+    try {
+      const res = await axios.get("http://localhost:2025/api/Admin/Get-category",{
+        headers: {
+          'Authorization': `Bearer ${user.token}`
+          }
+      });
+      setCategorys(res.data);      
+    } catch (error) {
+      console.log(error);
+      if (error.response?.status !== 200) {
+        toast.error(error.response?.data?.message)
+      }
+      setLoading(false);
+    }
+  };
+  const getProducts = async () => {
+    try {
+      const res = await axios.get("http://localhost:2025/api/Admin/Get-products", {
+        headers: { 'Authorization': `Bearer ${user.token}` }
+      });
+      setProducts(res.data);
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to fetch products");
+    }
+  };
   useEffect(() => {
     getMessage();
+    getUser()
+    getCategory()
+    getProducts()
   }, []);
   return (
     <div className='DashBord'>
@@ -67,7 +119,7 @@ const DashBord = () => {
                 <LayoutGrid  size={28} color="#4f8cff" />
               </span>
             </div>
-            <h1>9</h1>
+            <h1>{Categorys.length}</h1>
             <Link onClick={()=>handleMenuSelect('Categories')} 
             style={{textDecoration:"none",width:"100%",backgroundColor:"wheat"}} 
             to='/ManagementDashboard/CategroiesBord'>  
@@ -86,7 +138,7 @@ const DashBord = () => {
               <Package size={28} color="#4f8cff" />
             </span>
           </div>
-          <h1>29</h1>
+          <h1>{Products.length}</h1>
           <Link onClick={()=>handleMenuSelect('AllProducts')} 
             style={{textDecoration:"none",width:"100%",backgroundColor:"wheat"}} 
             to='/ManagementDashboard/AllProducts'>  
@@ -123,23 +175,33 @@ const DashBord = () => {
         <Link style={{textDecoration:"none"}} onClick={()=>handleMenuSelect('Users')} to='/ManagementDashboard/user'>  
           <div className="DashBord-Menu-2-1">
             <div className='dashbord-menu-link'>
-              <span className='icon-arrow'>
-                <SquareArrowRight style={{marginLeft:"24%"}} size={20} color="#4f8cff" />
+              <h3 style={{color:"white"}}>user</h3>
+              <span className='icon-circle'>
+                <User   size={28} color="#4f8cff" />
               </span>
-              <h5 style={{color:"white"}}>Go to User component</h5>
             </div>
-            <img src={userI}alt="" />
+            <h1>{Users.length}</h1>
+            <div className='dashbord-menu-link'>
+              <span className='icon-arrow'>
+                <SquareArrowRight size={20} color="#4f8cff" />
+              </span>
+              <h5>Go to component</h5>
+          </div>
           </div>
         </Link>
-        <div className='DashBord-Menu-2-2'>
-          <div className='dashbord-menu-link'>
-              <span className='icon-arrow'>
-                <SquareArrowRight  style={{marginLeft:"24%"}} size={20} color="#4f8cff" />
+          <div className="DashBord-Menu-2-1">
+            <div className='dashbord-menu-link'>
+              <h3 style={{color:"white"}}>Sales Reports</h3>
+              <span className='icon-circle'>
+                <MessageCircleWarning   size={28} color="#4f8cff" />
               </span>
-              <h5 style={{color:"white"}}>Check Sels Message</h5>
-          </div>
-          <div className='Message'>
-
+            </div>
+            <h1>{Users.length}</h1>
+            <div className='dashbord-menu-link'>
+              <span className='icon-arrow'>
+                <SquareArrowRight size={20} color="#4f8cff" />
+              </span>
+              <h5>Go to component</h5>
           </div>
           </div>
       </div>

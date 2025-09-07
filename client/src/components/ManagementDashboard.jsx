@@ -32,7 +32,6 @@ const   ManagementDashboard = () => {
     } else if (location.pathname.includes('/SalesReports')) {
       setSelecteMenu('SalesReports');
     }
-    console.log(selecteMenu);
     
   }, [location.pathname]);
 
