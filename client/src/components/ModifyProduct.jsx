@@ -211,9 +211,13 @@ const ModifyProduct = ({id,setModify}) => {
     formData.append("isFeatured", isFeatured);
 
     if (subcategoryId) formData.append("subcategoryId", subcategoryId);
-    if (size.length) formData.append("size", JSON.stringify(size));
-    if (color.length) formData.append("color", JSON.stringify(color));
-    
+    if (size.length) {
+      size.forEach(s => formData.append("size[]", s));
+    }
+    if (color.length) {
+      color.forEach(c => formData.append("color[]", c));
+    }
+
     // Append new images per color
     Object.entries(colorImages).forEach(([colorKey, files]) => {
       files.forEach(file => {

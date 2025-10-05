@@ -13,6 +13,6 @@ router.get('/getMessage',protect,Messages)
 router.post("/Add-Product",protect,upload.any(),AddProduct)
 router.get("/Get-products",getProduct)
 router.get("/Get-product/:id",getProductById)
-router.put('/Update-Product/:id',protect,upload.any(),UpdateProduct)
+router.put('/UpdateProduct/:id',protect,upload.any(),UpdateProduct)
 router.delete('/Delete-SubCategory/:id',protect,deleSubCategory)
 export default router

@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react'
 import ChangeComp from './ChangeComp'
 import product from '../images/capuche.png'
-import { Mail,Instagram,Shirt,X} from 'lucide-react';
+import { Instagram,Shirt,X ,Smartphone,CircleCheckBig ,Search,Bolt,BookOpen,Trophy,Mail,MapPin,Phone,Clock ,ArrowRight} from 'lucide-react';
 import product2 from '../images/product-1.jpg'
 import wtshirt from '../images/wtshirt-2.png'
 import tshirtmanches from '../images/tshirt-manches-2.png'
 import baskets from '../images/baskets-10.png'
 import Accessories from '../images/Accessories.jpg'
 import Hoodies from '../images/Hoodies.jpg'
-import product5 from '../images/tshirt-manches-2.png'
+import product5 from '../images/ES2.png'
 import { Link, useNavigate } from 'react-router-dom';
 import toast,{Toaster}  from 'react-hot-toast'
 import axios from 'axios'
@@ -20,11 +20,74 @@ const HomeComp = () => {
   localStorage.setItem('selecteMenu', 'Dashbord');
   const [email, setEmail] = useState('')
   const [isSubscribing, setIsSubscribing] = useState(false)
+  const [Products, setProducts] = useState([]);
+  const user = JSON.parse(localStorage.getItem("user"));
+  const [nom, setNom] = useState("");
+
+  const navigate = useNavigate();
+
+const sendMail = async () => {
+  console.log(phone, email, message, subject);
+
+  if (!isValid()) {
+    toast.error("All fields are required");
+    return;
+  }
+
+  if (!isNumber(phone)) {
+    toast.error("Invalid phone number");
+    return;
+  }
+
+  if (phone.length !== 8) {
+    toast.error("Phone number must be 8 digits long");
+    return;
+  }
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    toast.error("Invalid email address");
+    return;
+  }
+  
+  // API call
+  try {
+    const res = await axios.post("http://localhost:2025/api/Contactez-nous", {
+      name,
+      subject,
+      email,
+      message,
+      phone,
+    });
+
+    if (res.status === 200) {
+      toast.success("Message sent successfully ✅");
+      console.log("Message sent successfully");
+    }
+  } catch (error) {
+    console.error("Error sending message:", error);
+    toast.error("Failed to send message ❌");
+  }
+};
 
   const validateEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     return emailRegex.test(email)
   }
+  const getProducts = async () => {
+    try {
+      const res = await axios.get("http://localhost:2025/api/GetProduct");
+       const featuredProducts = res.data
+        .filter(p => p.isFeatured)
+        .slice(0, 4);
+       setProducts(featuredProducts);
+      
+    } catch (error) {
+      console.log(error);
+      
+      toast.error(error.response?.data?.message || "Failed to fetch products");
+    }
+  };
 
   const Subscribe = async () => {
     if (!email) {
@@ -56,15 +119,28 @@ const HomeComp = () => {
   const handleCardClick = (index) => {
     setSelectedCard(selectedCard === index ? null : index);
   };
-  const navigate = useNavigate();
 
   const getCardWidth = (index) => {
-    return selectedCard === index ? "29%" : "15%";
+    return selectedCard === index ? "40%" : "15%";
   };
+  useEffect(() => {
+    if (showcontact) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'auto';
+    }
+
+    // Cleanup function to restore overflow when component unmounts
+    return () => {
+      document.body.style.overflow = 'auto';
+    };
+  }, [showcontact]);
 
   useEffect(() => {
+    getProducts()
     const timer = setTimeout(() => setShowSpinner(false), 5000);
     return () => clearTimeout(timer);
+    
   }, []);
 
   return (
@@ -79,7 +155,7 @@ const HomeComp = () => {
       )}
       <ChangeComp/>
       <div className="homediv-0">
-        <div 
+        {/* <div 
           className="selectCard" 
           style={{
             width: getCardWidth(0),
@@ -140,7 +216,33 @@ const HomeComp = () => {
 
         >
           <img src={tshirtmanches} style={{objectFit:'cover',width:"100%",borderRadius:"15px"}} alt="" />
-        </div>
+        </div> */}
+        {Products.slice(0, 4).map((prod, index) => (
+          <div 
+            key={prod._id}
+            className="selectCard"
+            style={{
+              width: getCardWidth(index),
+              cursor: "pointer",
+              transition: "width 0.6s ease"
+            }}
+            onClick={()=>navigate(`/PorductSelecte/${prod._id}`, {
+                        state: {
+                          parentCategoryId: prod.categoryId,
+                          subcategoryId: prod.subcategoryId,
+                          genre: prod.genre,
+                        }})}
+            onMouseEnter={() => handleCardClick(index)}
+            onMouseLeave={() => handleCardClick(null)}
+          >
+            <img 
+              src={`http://localhost:2025/${prod.images?.[0]?.urls?.[0]}`} 
+              alt={prod.name} 
+              style={{ objectFit: 'cover', width: "100%", borderRadius: "15px" }}
+            />
+          </div>
+        ))}
+
       </div>
       
       {/* Subscribe Section */}
@@ -253,22 +355,65 @@ const HomeComp = () => {
       </div>
 
       {showcontact && (
-        <div className='Hcontact'>
-          <X size={40} className="Xcontact" onClick={()=>setShowContact(false)} />
-          <h1>Es</h1>
-          <div style={{width:"100%",height:"80%",display:"flex",alignItems:"center",justifyContent:"center",position:"absolute",bottom:"0"}}>
-            <div className='Hcontact-1'>
-              <h2>Contactez-nous</h2>
-              <p>Having trouble with your order or need assistance? We're here to help! Whether you have questions about your purchase, need to report an issue, or want to make changes to your order, our team is ready to support you. Don't hesitate to reach out — we'd love to hear from you and ensure you have the best shopping experience!</p>
+        <div className={`divcontactHome`} >
+        <Toaster/>
+          <div style={{width:"100%",height:"100%",zIndex:"222",paddingBottom:'39%'}}>
+          <ArrowRight size={30} onClick={()=>setShowContact(false)} style={{color:"white",cursor:"pointer",position:"absolute",top:"10px",left:"97%"}}/>
+            <h1>Contact-<span style={{color:"#03F7EB"}}>us</span></h1>
+            <p>Join our Sport Booking partner network and make your pitch easily accessible – we’d love to hear from you!</p>
+            <div style={{display:"flex",justifyContent:"center",gap:"5%"}}>
+              <div className='InformationsContact'>
+                <h1> <Mail color='#03F7EB'/> Information de contact</h1>
+                <h2> <MapPin size={19} color='#03F7EB'/> Adresse</h2>
+                <p>123 Avenue du Sport</p>
+                <p>75001 Paris, France</p>
+                <h2> <Phone size={19} color='#03F7EB'/> Telephone</h2>
+                <p>+216 99993286</p>
+                <h2> <Mail size={19} color='#03F7EB'/> Email</h2>
+                <p>KickOff@gmail.com</p>
+                <h2> <Clock size={19} color='#03F7EB'/> Hours of operation</h2>
+                <p>Lun - Ven: 8h00 - 01h00</p>
+              </div>
+              <div className='InformationsContact' style={{height:"660px"}}>
+                <h3>Send us a message</h3>
+                <div className='FormContact'>
+                  <div style={{marginLeft:"4%"}}>
+                    <h4>Full name </h4>
+                    <input type="text" onChange={(e)=>setName(e.target.value)} placeholder='your name' name="" id="" />
+                  </div>
+                  <div style={{marginLeft:"4%"}}>
+                    <h4>Telephone </h4>
+                    <input type="text" onChange={(e)=>setPhone(e.target.value)} name="" placeholder="+216 99993286" />
+                  </div>
+                </div>
+                <div className='FormContact'>
+                  <div style={{marginLeft:"4%"}}>
+                    <h4>Email</h4>
+                    <input style={{width:"501px",height:"39px"}} onChange={(e)=>setEmail(e.target.value)} placeholder='voter@email.com' type="text" name="" id="" />
+                  </div>
+                </div>
+                <div className='FormContact'>
+                  <div style={{marginLeft:"4%"}}>
+                    <h4>subject</h4>
+                    <input style={{width:"501px",height:"39px"}} onChange={(e)=>setsubject(e.target.value)} placeholder='voter@email.com' type="text" name="" id="" />
+                  </div>
+                </div>
+                <div className='FormContact'>
+                  <div style={{marginLeft:"4%"}}>
+                    <h4>Message</h4>
+                    <textarea name="" onChange={(e)=>setMessage(e.target.value)} placeholder="Message..."></textarea>
+                  </div>
+                </div>
+                <button onClick={sendMail}><Mail size={17}/> Send Message</button>
+              </div>
             </div>
-            <div className='Hcontact-2'>
-              <p>Email</p>
-              <input type="text" placeholder='you@gmail.com'/>
-              <p>Phone Number</p>
-              <input type="text" placeholder='+216 '/>
-              <p>Message</p>
-              <textarea placeholder='Your Message' name="" id=""></textarea>
-              <button className='send'>Send</button>
+            <div className='rejoindre'>
+              <h1>Why join us?</h1>
+              <h3><CircleCheckBig size={19} color='#03F7EB'/> Increase the visibility of your land</h3>
+              <h3><CircleCheckBig size={19} color='#03F7EB'/> Simplified reservation management</h3>
+              <h3><CircleCheckBig size={19} color='#03F7EB'/> Dedicated technical support</h3>
+              <h3><CircleCheckBig size={19} color='#03F7EB'/> Attractive commission</h3>
+              <h3><CircleCheckBig size={19} color='#03F7EB'/> Automated secure payments</h3>
             </div>
           </div>
         </div>

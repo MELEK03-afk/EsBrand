@@ -15,6 +15,8 @@ import ProductsU from './components/ProductsU'
 import PorductSelecte from './components/PorductSelecte'
 import ProfileComp from './components/ProfileComp';
 import CommandeComp from './components/CommandeComp';
+import ConfirmSubscribePage from './components/ConfirmSubscribePage'
+import ResetPasword from './components/ResetPassword'
 function App() {
   const [count, setCount] = useState(0)
   const [showBag, setShowBag] = useState(false); // LIFTED STATE
@@ -26,10 +28,12 @@ function App() {
         <Route path='/' element={<HomeComp/>}/>
         <Route path='/PorductSelecte/:id' element={<PorductSelecte setShowBag={setShowBag} />}/>
         <Route path='/Seconnect' element={<SeConnect/>}/>
+        <Route path='/ResetPassword' element={<ResetPasword/>}/>
         <Route path='/ProductU/:subcategoryName' element={<ProductsU/>}/>
         <Route path='/Commande' element={<CommandeComp/>}/>
         <Route path="/profile" element={<ProfileComp />} />
         <Route path='/ContactPage' element={<ContactPage/>}/>
+        <Route path="/confirm-subscribe/:token" element={<ConfirmSubscribePage/>}/>
         <Route path='/ManagementDashboard/*' element={<ManagementDashboard/>}>
           <Route index element={<Navigate to="DashBord" replace />} />
           <Route path='DashBord' element={<DashBord/>}/>

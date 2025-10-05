@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { Link ,useNavigate} from 'react-router-dom'
 import axios from 'axios'
-import { CircleX,Menu,House  } from 'lucide-react';
+import { CircleX,Mail,House ,Shirt,Lock,Phone  ,Eye  } from 'lucide-react';
 import toast,{Toaster}  from 'react-hot-toast'
 const SeConnect = () => {
     const [from, setForm] = useState(true)
@@ -10,6 +10,7 @@ const SeConnect = () => {
     const [phoneNumber,setphoneNumber] = useState('')
     const [phoneError,setphoneNumberError] = useState('')
     const [password,setPassword] = useState('')
+    const [showpassword,setShowPassword] = useState(false)
     const [passwordError,setPasswordError] = useState('')
     const navigate=useNavigate()
     function isNumber(phoneNumber) {
@@ -23,11 +24,11 @@ const SeConnect = () => {
         console.log(password);
         
         if (!email || !phoneNumber || !password) {
-            toast.error("All fields are require")
+            return toast.error("All fields are require")
             
         }
         if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-            setEmailError(<>Invalid Email <CircleX size={15} style={{position:'relative',top:"5px"}}/></>)
+            return setEmailError(<>Invalid Email <CircleX size={15} style={{position:'relative',top:"5px"}}/></>)
             
         }
         if (!checkPhone) {
@@ -112,28 +113,50 @@ const SeConnect = () => {
                     <h1 style={{ marginTop: "4%" }}>Welcome</h1>
                     <h4>Create your Account</h4>
                     <p>E-mail</p>
-                    <input 
-                        placeholder="you@gmail.com" 
-                        onChange={(e) => setEmail(e.target.value)} 
-                        type="text" 
-                        value={email}
-                    />
+                    <div style={{ position: "relative", width: "100%" }}>
+                        <Mail size={19} style={{ position: "absolute", left: "19%", top: "52%", transform: "translateY(-50%)", color: "gray" }} />
+                        <input
+                            type="email"
+                            onChange={(e) => setEmail(e.target.value)} 
+                            placeholder="Es@gmail.com"
+                            style={{
+                            paddingLeft: "35px", // space for the icon
+                            height: "40px",
+                            width: "60%",
+                            }}
+                        />
+                    </div>
                     {emailerror && <p id='errorP' style={{color: 'red', fontSize: '12px'}}>{emailerror}</p>}
                     <p>Phone Number</p>
-                    <input 
-                        placeholder="+216" 
-                        type="text" 
-                        onChange={(e) => setphoneNumber(e.target.value)}
-                        value={phoneNumber}
-                    />
+                    <div style={{ position: "relative", width: "100%" }}>
+                        <Phone  size={19} style={{ position: "absolute", left: "19%", top: "52%", transform: "translateY(-50%)", color: "gray" }} />
+                        <input
+                            type="email"
+                            onChange={(e) => setphoneNumber(e.target.value)} 
+                            placeholder="+216"
+                            style={{
+                            paddingLeft: "35px", // space for the icon
+                            height: "40px",
+                            width: "60%",
+                            }}
+                        />
+                    </div>
                     {phoneError && <p id='errorP' style={{color: 'red', fontSize: '12px'}}>{phoneError}</p>}
                     <p>Password</p>
-                    <input 
-                        placeholder="• • • • • • • •" 
-                        type="password" 
-                        onChange={(e) => setPassword(e.target.value)}
-                        value={password}
-                    />
+                    <div style={{ position: "relative", width: "100%" }}>
+                        <Lock  size={19} style={{ position: "absolute", left: "19%", top: "52%", transform: "translateY(-50%)", color: "gray" }} />
+                        <input
+                            type={showpassword ?"text":"password"}
+                            placeholder="*********"
+                            onChange={(e) => setPassword(e.target.value)}
+                            style={{
+                            paddingLeft: "35px", // space for the icon
+                            height: "40px",
+                            width: "60%",
+                            }}
+                        />
+                    <Eye  onClick={()=>setShowPassword(!showpassword)} size={19} style={{ cursor:"pointer",position: "absolute", right: "19%", top: "52%", transform: "translateY(-50%)", color: "gray" }} />
+                    </div>  
                     {passwordError && <p id='errorP' style={{color: 'red', fontSize: '12px'}}>{passwordError}</p>}
                     <button className='seconnectBt' onClick={SignUP}>Sign Up</button>
                     <h5 style={{ color: "rgb(184, 183, 183)" }}>
@@ -147,12 +170,40 @@ const SeConnect = () => {
         } else {
             return (
                 <>
-                    <h1 style={{ marginTop: "4%" }}>Welcome Back</h1>
+                    <h1 style={{ marginTop: "4%" }}> Welcome Back</h1>
                     <h4>Sign in to continue to your account</h4>
                     <p>E-mail</p>
-                    <input placeholder="you@gmail.com"  onChange={(e) => setEmail(e.target.value)} type="text" name="" id="" />
+                    <div style={{ position: "relative", width: "100%" }}>
+                        <Mail size={19} style={{ position: "absolute", left: "19%", top: "52%", transform: "translateY(-50%)", color: "gray" }} />
+                        <input
+                            type="email"
+                            onChange={(e) => setEmail(e.target.value)} 
+                            placeholder="Es@gmail.com"
+                            style={{
+                            paddingLeft: "35px", // space for the icon
+                            height: "40px",
+                            width: "60%",
+                            }}
+                        />
+                    </div>   
                     <p>Password</p>
-                    <input placeholder="• • • • • • • •" onChange={(e) => setPassword(e.target.value)} type="password" name="" id="" />
+                    <div style={{ position: "relative", width: "100%" }}>
+                        <Lock  size={19} style={{ position: "absolute", left: "19%", top: "52%", transform: "translateY(-50%)", color: "gray" }} />
+                        <input
+                            type={showpassword ?"text":"password"}
+                            placeholder="*********"
+                            onChange={(e) => setPassword(e.target.value)}
+                            style={{
+                            paddingLeft: "35px", // space for the icon
+                            height: "40px",
+                            width: "60%",
+                            }}
+                        />
+                        <Eye onClick={()=>setShowPassword(!showpassword)}  size={19} style={{cursor:"pointer", position: "absolute", right: "19%", top: "52%", transform: "translateY(-50%)", color: "gray" }} />
+                    </div>  
+                    <Link to='/ResetPassword' style={{textDecoration:"none",color:"black"}}>
+                    <h4 id='Resetph4'>Forgot password?</h4>
+                    </Link>                    
                     <button className='seconnectBt' onClick={SignIn}>Sign In</button>
                     <h5 style={{ color: "rgb(184, 183, 183)" }}>
                         {from ? "You don't have Account?" : "Already have Account?"} 
@@ -167,7 +218,38 @@ const SeConnect = () => {
 
     return (
         <div className='SeConnect'>
-            <div className="SeConnect-1"></div>
+            <div className="SeConnect-1">
+                <div class="pc-page">
+                <div class="pc-wrap">
+                    <div class="pc-card">
+                    <p class="pc-prompt">
+                        We are passionate about creating high-quality, stylish clothing that empowers individuals to express their unique personality
+                    </p>
+
+                    <div class="pc-controls">
+                        <div class="pc-left">
+                        <button class="pc-btn pc-btn-icon pc-plus" aria-label="add">+</button>
+
+                        <div class="pc-tag">
+                            <span class="pc-tag-icon">⚡</span>
+                            <span class="pc-tag-text">Inspiration</span>
+                            <span class="pc-tag-caret">▾</span>
+                        </div>
+                        </div>
+
+                        <div class="pc-center">
+                        <div class="pc-variant">Es 1.0</div>
+                        </div>
+
+                        <div class="pc-right">
+                        <button class="pc-btn pc-btn-icon pc-mic" aria-label="mic"><Shirt/></button>
+                        <button class="pc-send" aria-label="send">Es</button>
+                        </div>
+                    </div>
+                    </div>
+                </div>
+                </div>
+            </div>
             <div className="SeConnect-2">
                 <House onClick={()=>navigate("/")} size={23}  strokeWidth={3} style={{position:"absolute",cursor:'pointer',top:"10px",right:"10px"}}/>
                 <div key={from ? "sign-in" : "sign-up"} className="fade-in">

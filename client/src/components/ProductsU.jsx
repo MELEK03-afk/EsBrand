@@ -5,6 +5,8 @@ import axios from 'axios';
 import toast, { Toaster } from 'react-hot-toast';
 import Box from "@mui/material/Box";
 import Slider from "@mui/material/Slider";
+import { Funnel,BrushCleaning ,X } from 'lucide-react';
+import { motion, AnimatePresence } from "framer-motion";
 
 function valuetext(value) {
   return `${value}°C`;
@@ -15,10 +17,11 @@ const ProductsU = () => {
   const location = useLocation();
   const { parentCategoryId, subcategoryId, genre } = location.state || {};
   const [searchParams] = useSearchParams();
-  const subcategoryIdI = searchParams.get("subcategoryId");
-  const genreI = searchParams.get("genre");
+  const effectiveSubcategoryId = subcategoryId || searchParams.get("subcategoryId");
+  const effectiveGenre = genre || searchParams.get("genre");
   const [products, setProducts] = useState([]);
-  const [subCatSelected, setSubcatSelected] = useState(null);
+  const [subCatSelected, setSubcatSelected] = useState(subcategoryId);
+  const [FunnelIC, setFunnel] = useState(false);
   const [selectedColors, setSelectedColors] = useState({});
   const [hoveredProductId, setHoveredProductId] = useState(null);
   const [categories, setCategories] = useState([]);
@@ -78,65 +81,99 @@ const ProductsU = () => {
 
   useEffect(() => {
     const getFilters = async () => {
+      console.log(genre);
+      console.log(subcategoryId);
+      
       try {
         const res = await axios.get("http://localhost:2025/api/filters", {
           params: {
-            subcategoryId: subCatSelected, // ✅ use selected subcategory
-            genre,
+            subcategoryId: subCatSelected,
+            genre: genre,
           },
         });
+
         setAvailableFilters({
-          colors: res.data.colors,
-          sizes: res.data.sizes.flatMap(s => {
+          colors: res.data.colors || [],
+          sizes: (res.data.sizes || []).flatMap(s => {
             try {
               return JSON.parse(s._id).map(sz => ({ _id: sz, count: s.count }));
             } catch {
               return [{ _id: s._id, count: s.count }];
             }
           }),
-        });        console.log("Filters:", res.data);
+        });
+        console.log(availableFilters);
+        
       } catch (error) {
-        console.error(error);
+        console.error("❌ Failed to fetch filters:", error);
       }
     };
-    getFilters();
+
+    if (subcategoryId || genre) {
+      getFilters();
+    }
   }, [parentCategoryId, subCatSelected, genre]);
 
+  const normalizeSizes = (raw) => {
+    if (!raw) return [];
+    try {
+      if (Array.isArray(raw)) {
+        if (typeof raw[0] === "string" && raw[0].startsWith("[")) {
+          return JSON.parse(raw[0]); // case: ['["XS","S","M"]']
+        }
+        return raw; // already array of sizes
+      }
+      if (typeof raw === "string" && raw.startsWith("[")) {
+        return JSON.parse(raw); // case: '["XS","S","M"]'
+      }
+    } catch (err) {
+      console.error("❌ normalizeSizes failed:", err, raw);
+    }
+    return [];
+  };
 
 
   useEffect(() => {
-    // If subcategoryId is provided, set it; otherwise, keep it as null for "See-All"
-    setSubcatSelected(subcategoryIdI);
+    setSubcatSelected(effectiveSubcategoryId );
   }, [subcategoryId]);
 
-  // Memoize filtered products
+
   const filteredProducts = useMemo(() => {
-    let filtered = products;
-    console.log(selectedColor);
-    console.log(filtered);
+    let filtered = Array.isArray(products) ? products : [];
     
 
     if (subCatSelected) {
-      filtered = filtered.filter(p => p.subcategoryId === subCatSelected);
+      filtered = filtered.filter(p => p?.subcategoryId === subCatSelected);
     }
+
     if (genre) {
-      filtered = filtered.filter(p => p.genre === genre);
+      filtered = filtered.filter(p => p?.genre === genre);
     }
-    filtered = filtered.filter(
-      p => value[0] <= p.price && p.price <= value[1]
-    );
+
+    if (Array.isArray(value) && value.length === 2) {
+      filtered = filtered.filter(
+        p => typeof p?.price === "number" && value[0] <= p.price && p.price <= value[1]
+      );
+    }
 
     if (selectedColor) {
-      filtered = filtered.filter(p => p.color.includes(selectedColor));
+      filtered = filtered.filter(
+        p => Array.isArray(p?.color) && p.color.includes(selectedColor)
+      );
     }
+
     if (selectedSize) {
-      filtered = filtered.filter(p => p.size.includes(selectedSize));
+      filtered = filtered.filter(p => {
+        const sizes = normalizeSizes(p.size);
+        return sizes.includes(selectedSize);
+      });
     }
+
 
     return filtered;
   }, [products, parentCategoryId, subCatSelected, genre, value, selectedColor, selectedSize]);
 
-  // Unified image getter
+
   const getImageByColor = (product, color, index = 0) => {
     if (!product?.images?.length) return '';
     const firstItem = product.images[0];
@@ -161,14 +198,14 @@ const ProductsU = () => {
   return (
     <div style={{ width: '100%' }}>
       <div className='CategoriesPU'>
-        {!subCatSelected ? (
+        {/* {!subCatSelected ? (
           // Show parent category name when "See-All" is selected
           <h1>{categories.find(cat => cat._id === parentCategoryId)?.name}</h1>
         ) : (
           subcategories.filter(subcat => subcat._id === subCatSelected && subcat.genre === genre).map(Subcat => (
             <h1 key={Subcat._id}>{Subcat.name}</h1>
           ))
-        )}
+        )} */}
         <div className='SubcategorisPU'>
           {/* See-All button */}
           <div
@@ -187,7 +224,7 @@ const ProductsU = () => {
                 backgroundColor: Subcat._id === subCatSelected ? 'white' : '',
                 color: Subcat._id === subCatSelected ? 'black' : '',
               }}
-              onClick={() => setSubcatSelected(Subcat._id)}
+              onClick={() => (setSubcatSelected(Subcat._id),setSelectedColor(null))}
               className='subcatPU'
               key={Subcat._id}
             >
@@ -196,93 +233,123 @@ const ProductsU = () => {
           ))}
         </div>
       </div>
+      <div className='FunnelIcon' onClick={()=>setFunnel(!FunnelIC)}><Funnel/></div>
       <div className='AllProduct-1'>
-        <div className='FilterdPrd'>
-          <div className='prixFilter'>
-            <h3>Filtrer par Prix</h3>
-            <Box sx={{ width: 250 }}>
-            <Slider
-              step={10}
-              getAriaLabel={() => 'Temperature range'}
-              value={value}
-              onChange={handleChange}
-              valueLabelDisplay="auto"
-              color='black'
-              max={300}
-              getAriaValueText={valuetext}
-            />
-            </Box>  
-            <div className='prixBetween'>
-              <h5>{value[0]}DT</h5>
-              <h5>{value[1]}DT</h5>
-            </div>
-          </div>
-          <div className='border'></div>
-          <div className="filter-section">
-            <h3>Filtrer par Couleur</h3>
-            <div className='ColorsproductU'>
-              {availableFilters.colors.map(c => (
-                <div
-                  key={c._id}
-                  className='SelectedColor'
-                  onClick={() => setSelectedColor(c._id)}
-                  style={{
-                    cursor: "pointer",
-                    display:"flex",
-                    fontWeight: selectedColor === c._id ? "bold" : "normal",
-                  }}
+        <AnimatePresence>
+          {FunnelIC && (
+            <motion.div  className="FilterdPrd"
+            initial={{ width: 0, opacity: 0 }}
+            animate={{ width: "25%", opacity: 1 }}
+            exit={{ width: 0, opacity: 0 }}
+            transition={{ duration: 0.5, ease: "easeInOut" }}>
+              <X style={{position:"absolute",right:"5px",cursor:"pointer"}} onClick={()=>setFunnel(false)}/>
+                <h3 style={{color:"#F5C400"}}>Filters</h3>
+              <div  >
+                <div className='prixFilter'>
+                  <h3>Filtrer par Prix</h3>
+                  <Box sx={{ width: 250 }}>
+                  <Slider
+                    step={10}
+                    getAriaLabel={() => 'Temperature range'}
+                    value={value}
+                    onChange={handleChange}
+                    valueLabelDisplay="auto"
+                    color='black'
+                    max={300}
+                    getAriaValueText={valuetext}
+                  />
+                  </Box>  
+                <div className='prixBetween'>
+                  <h5>{value[0]}DT</h5>
+                  <h5>{value[1]}DT</h5>
+                </div>
+                </div>
+                <div className='border'></div>
+                <div className="filter-section">
+                  <motion.div 
+                  className="filter-section"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, delay: 0.2 }}
                 >
-                <div className="colorItem">
-                  <div style={{display:"flex",width:"70%",alignItems:"center"}}>
-                    <span style={{
-                        width: '24px',
-                        height: '24px',
-                        margin: '5px',
-                        borderRadius: '50%',
-                        cursor: 'pointer',
-                        border: '2px solid black',
-                        backgroundColor: c._id,
-                        backgroundPosition: 'center',
-                        backgroundRepeat: 'no-repeat',
-                        boxShadow: '0 0 0 2px #fff inset',
-                      }} 
-                    />
-                    <h4>{c._id}</h4>
+                  <h3>Filtrer par Couleur</h3>
+                  <BrushCleaning className='BrushCleaning' size={19} onClick={()=>(setSelectedColor(null))}/>
+                  <div className='ColorsproductU'>
+                    {availableFilters.colors.map(c => (
+                      <div
+                        key={c._id}
+                        className='SelectedColor'
+                        onClick={() => (setSelectedColor(c._id),(setSelectedColors(c._id)))}
+                        style={{
+                          cursor: "pointer",
+                          display:"flex",
+                          fontWeight: selectedColor === c._id ? "bold" : "normal",
+                        }}
+                      >
+                      <div className="colorItem">
+                        <div style={{display:"flex",width:"70%",alignItems:"center"}}>
+                          <span style={{
+                              width: '24px',
+                              height: '24px',
+                              margin: '5px',
+                              borderRadius: '50%',
+                              cursor: 'pointer',
+                              border: '2px solid black',
+                              backgroundColor: c._id,
+                              backgroundPosition: 'center',
+                              backgroundRepeat: 'no-repeat',
+                              boxShadow: '0 0 0 2px #fff inset',
+                            }} 
+                          />
+                          <h4>{c._id}</h4>
+                        </div>
+                        <div className="countColors">{c.count}</div>
+                      </div>
+
+                      </div>
+                    ))}
                   </div>
-                  <div className="countColors">{c.count}</div>
+                </motion.div>
                 </div>
+                <div className='border'></div>
+                <div className="filter-section" style={{position:"relative"}}>
+                  <h3>Filtrer par Taille</h3>
+                  <BrushCleaning className='BrushCleaning' size={19} onClick={()=>(setSelectedSize(null))}/>
 
+                  {availableFilters.sizes.map(s => (
+
+                    <div key={s._id}  onClick={() => setSelectedSize(s._id)}  className='SizesF'>
+                      <h4 className ='filterColor' style={{borderRadius:"20%",padding:"5px 7px"}}>{s._id} </h4>
+                      <div className='countColors'>{s.count}</div>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-          </div>
-          <div className='border'></div>
-          <div className="filter-section">
-            <h3>Filtrer par Taille</h3>
-            {availableFilters.sizes.map(s => (
-
-              <div key={s._id}  onClick={() => setSelectedSize(s._id)}  className='SizesF'>
-                <h4 id='filterColor' style={{borderRadius:"50%",padding:"5px 7px"}}>{s._id} </h4>
-                <div className='countColors'>{s.count}</div>
               </div>
-            ))}
-          </div>
-        </div>
-        <div className='ProductsU'>
+            </motion.div>
+  )}
+        </AnimatePresence>
+        <div className='ProductsU' style={{gap: FunnelIC == true ?'1%':'3%'}}>
           {filteredProducts.map(product => {
+            console.log(product.size);
+            
             const color = selectedColors[product._id];
             const mainImg = getImageByColor(product, color);
             const secondImg = getImageByColor(product, color, 1);
             const isHovered = hoveredProductId === product._id;
             let sizes = [];
             try {
-              const raw = Array.isArray(product.size) ? product.size[0] : product.size;
-              sizes = JSON.parse(raw);
+              if (Array.isArray(product.size)) {
+                if (typeof product.size[0] === "string") {
+                  sizes = JSON.parse(product.size[0]); // string → array
+                } else {
+                  sizes = product.size; // already array
+                }
+              }
             } catch (err) {
-              console.error("Size parsing failed:", err, product.size);
+              console.error("❌ Size parsing failed:", err, product.size);
             }
             return (
-              <div className='productU' onClick={()=>navigate(`/PorductSelecte/${product._id}`, {
+              <div className='productU' style={{width: FunnelIC == true ?'32%':'22%'}} onClick={()=>navigate(`/PorductSelecte/${product._id}`, {
                         state: {
                           parentCategoryId: product.categoryId,
                           subcategoryId: product.subcategoryId,

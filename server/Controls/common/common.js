@@ -5,7 +5,9 @@ import Cart from "../../models/Cart.js"
 import Abonne from "../../models/Abonne.js"
 import validator from 'validator'
 import Product from "../../models/Product.js"
-
+import mongoose from "mongoose";
+import nodemailer from "nodemailer"
+import crypto from "crypto";
 
 export const singUp = async(req,res)=>{
     
@@ -87,6 +89,110 @@ export const singIn = async (req, res) => {
 
     }
 };
+export const CheckEmail = async (req, res) => {
+  const {email} = req.body;
+
+  try {
+    if (!email) {
+      return res.status(400).json({ message: "email are required" });
+    }
+
+  
+    const find = await User.findOne({ email: email });
+
+    if (!find) {
+      return res.status(204).json({ message: "User not found" });
+    }
+
+    res.status(200).json({ message: "Email Exist" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+export const Newpassword = async (req, res) => {
+  const { password, email } = req.body;
+
+  try {
+    if (!password || !email) {
+      return res.status(400).json({ message: "Password and email are required" });
+    }
+
+    // Hash the new password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Update the user's password by email
+    const updatedUser = await User.findOneAndUpdate(
+      { email: email },                // filter by email
+      { password: hashedPassword },    // set new password
+      { new: true }                    // return updated user
+    );
+
+    if (!updatedUser) {
+      return res.status(204).json({ message: "User not found" });
+    }
+
+    res.status(200).json({ message: "Password updated successfully" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+export const ResetEmail = async (req, res) => {
+  const { email } = req.body;
+
+  try {
+    // Generate a random 6-digit code
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+
+    // Send email
+    await SendEmailReset(code, email);
+
+    // Return the code in response (⚠️ only for dev/testing, in prod store in DB/session)
+    res.status(200).json({ code });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: "Failed to send email" });
+  }
+};
+
+function SendEmailReset(code, email) {
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: "meleksaket2003@gmail.com",
+      pass: "luxa gacz fkyb sryy" // app password
+    }
+  });
+
+  const mailOptions = {
+    from: `"KickOff Support" <meleksaket2003@gmail.com>`,
+    to: email,
+    subject: "🔐 Vérification en deux étapes - KickOff",
+    html: `
+      <div style="font-family: Arial, sans-serif; background-color: #0B0D10; color: #fff; padding: 30px; border-radius: 10px;width: 100% ; margin: auto;">
+        <h2 style="text-align:center; color:#00E6AD;">Vérification en deux étapes</h2>
+        <p style="text-align:center; color:#ddd; font-size:14px;">
+          Un code de vérification a été envoyé à votre email <br/>
+          <span style="color:#00E6AD; font-weight:bold;">${email}</span>
+        </p>
+        <p style="text-align:center; color:#aaa; font-size:13px; margin-bottom: 20px;">
+          Veuillez saisir ce code, il expirera dans 15 minutes.
+        </p>
+
+        <h2 style="text-align:center; color:#00E6AD;">
+          ${code}
+        </h2>
+
+        <p style="text-align:center; font-size:12px; color:#888; margin-top:25px;">
+          Si vous n'êtes pas à l'origine de cette demande, ignorez simplement cet email.
+        </p>
+      </div>
+    `
+  };
+
+  return transporter.sendMail(mailOptions);
+}
 
 
 // Cart functionality
@@ -231,47 +337,145 @@ export const removeFromCart = async (req, res) => {
     }
 };
 
-export const Subscribe = async(req,res)=>{
-    const {email}=req.body
-    console.log(email);
-    
+
+export const getProductById = async(req,res)=>{    
+    const {id}=req.params
     try {
-        if( !email ){
-            return res.status(400).json({Message:"Email files are required"})
+        const product= await Product.findOne({subcategoryId:id}) 
+        if (!product) {
+            return res.status(404).json({message: "Product not found"})
         }
-        const exist= await Abonne.findOne({email})
-        if (exist) {
-            return res.status(400).json({ message: "Cette adresse e-mail est déjà utilisée" });
-        }
-
-        if (!validator.isEmail(email)) {
-            return res.status(400).json({ message: "Wrong E-mail" });
-        }
-          
-        const newSubscribe= new Abonne({email})
-        await newSubscribe.save()
-       return res.status(201).json({Message:"Successfuly Subscribe"})
-        
+        return res.status(200).json(product)
     } catch (error) {
-        console.log(error)
-        return res.status(500).json({ message: "Internal Server Error" });
-      }
-
-
+        console.log(error);
+        return res.status(404).json({Message:"Internal server error",error})
+    }
 }
 
-const GenerateToken =(id)=>{
-    return jwt.sign({id},process.env.JWT_secret,{expiresIn:"15d"})
+export const getProduct = async(req,res)=>{    
+    const {id}=req.params
+    try {
+        const product= await Product.find({})     
+        return res.status(200).json(product)
+    } catch (error) {
+        console.log(error);
+        return res.status(404).json({Message:"Internal server error",error})
+    }
 }
 
 
+
+export const Subscribe = async (req, res) => {
+  const { email } = req.body;
+
+  try {
+    if (!email) {
+      return res.status(400).json({ message: "Email is required" });
+    }
+
+    const exist = await Abonne.findOne({ email });
+    if (exist) {
+      return res.status(400).json({ message: "Cette adresse e-mail est déjà utilisée" });
+    }
+
+    if (!validator.isEmail(email)) {
+      return res.status(400).json({ message: "Wrong E-mail" });
+    }
+
+    // generate confirmation token
+    const token = crypto.randomBytes(32).toString("hex");
+
+    const newSubscribe = new Abonne({
+      email,
+      confirmed: false,
+      confirmationToken: token
+    });
+    await newSubscribe.save();
+
+    // send confirmation email with link
+    const confirmUrl = `http://localhost:2025/confirm-subscribe/${token}`;
+    SendConfirmationEmail(email, confirmUrl);
+
+    return res.status(201).json({
+      message: "Please confirm your email address. A confirmation link has been sent."
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+export const ConfirmSubscribe = async (req, res) => {
+  const { token } = req.params;
+
+  try {
+    const subscriber = await Abonne.findOne({ confirmationToken: token });
+    if (!subscriber) {
+      return res.status(400).json({ message: "Invalid or expired confirmation token" });
+    }
+
+    subscriber.confirmed = true;
+    subscriber.confirmationToken = undefined;
+    await subscriber.save();
+
+    // now send welcome email
+    SendNewsletterWelcome(subscriber.email);
+
+    return res.status(200).json({ message: "Your subscription has been confirmed!" });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+function SendConfirmationEmail(recipientEmail, confirmUrl) {
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: 'meleksaket2003@gmail.com',
+      pass: 'ghqx emfa jzan lvrn' 
+    }
+  });
+
+  const mailOptions = {
+    from: `"ES Brand" `,
+    to: recipientEmail,
+    subject: "Confirm your subscription to ES Newsletter",
+    html: `
+      <div style="font-family:Arial,Helvetica,sans-serif;background:#f9fafb;padding:30px;">
+        <div style="max-width:600px;margin:0 auto;background:#fff;border-radius:10px;overflow:hidden;border:1px solid #e5e7eb;">
+          <div style="background:black;color:white;padding:20px;text-align:center;font-size:20px;font-weight:bold;">
+            Confirm your subscription
+          </div>
+          <div style="padding:20px;">
+            <p style="font-size:14px;color:#444;line-height:1.6;">
+              Click the button below to confirm your subscription to <b>ES Brand</b>’s newsletter:
+            </p>
+            <a href="${confirmUrl}" style="display:inline-block;background:black;color:white;text-decoration:none;padding:12px 20px;border-radius:6px;margin-top:15px;font-weight:bold;">
+              Confirm Subscription
+            </a>
+          </div>
+        </div>
+      </div>
+    `
+  };
+
+  transporter.sendMail(mailOptions, function (error, info) {
+    if (error) {
+      console.log("❌ Email error:", error);
+    } else {
+      console.log("✅ Confirmation email sent:", info.response);
+    }
+  });
+}
 
 export const getFilters = async (req, res) => {
   try {
-    const {  subcategoryId, genre } = req.query; // ✅ use query, not body
+    let { subcategoryId, genre } = req.query;
+    // console.log("Incoming filters:", subcategoryId, genre);
 
     const matchStage = {};
-    if (subcategoryId) matchStage.subcategoryId = subcategoryId;
+    if (subcategoryId) matchStage.subcategoryId = new mongoose.Types.ObjectId(subcategoryId);
     if (genre) matchStage.genre = genre;
 
     const result = await Product.aggregate([
@@ -279,36 +483,37 @@ export const getFilters = async (req, res) => {
       {
         $facet: {
           colors: [
-                { $unwind: "$color" },
-                { 
-                    $group: { 
-                    _id:  "$color" , // ✅ normalize to lowercase
-                    count: { $sum: 1 }
-                    } 
-                },
-                { $sort: { _id: 1 } }
-            ],
+            { $unwind: "$color" },
+            { 
+              $group: { 
+                _id: "$color" ,// normalize lowercase
+                count: { $sum: 1 }
+              } 
+            },
+            { $sort: { _id: 1 } }
+          ],
           sizes: [
             { $unwind: "$size" },
             {
-                $project: {
+              $project: {
                 sizeArray: {
-                    $cond: [
+                  $cond: [
                     { $regexMatch: { input: "$size", regex: /^\[.*\]$/ } },
                     { $map: { input: { $split: [{ $trim: { input: "$size", chars: '[]"'} }, '","'] }, as: "s", in: "$$s" } },
                     ["$size"]
-                    ]
+                  ]
                 }
-                }
+              }
             },
             { $unwind: "$sizeArray" },
             { $group: { _id: "$sizeArray", count: { $sum: 1 } } },
-            { $sort: { _id: 1 } },
-        ],
-
+            { $sort: { _id: 1 } }
+          ],
         }
       }
     ]);
+
+    // console.log("Aggregation result:", result);
 
     res.json(result[0]);
   } catch (err) {
@@ -316,3 +521,10 @@ export const getFilters = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
+
+
+
+const GenerateToken =(id)=>{
+    return jwt.sign({id},process.env.JWT_secret,{expiresIn:"15d"})
+}

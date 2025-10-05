@@ -1,9 +1,8 @@
 body {
-  overflow-x: hidden;
   font-family: "Inter", sans-serif;
   font-optical-sizing: auto;
   font-weight: weight;
-  overflow-y: hidden;
+  overflow-x: hidden;
   font-style: normal;
   margin: 0;
 }
@@ -29,18 +28,73 @@ body {
   display: flex;
   z-index: 1000;
   align-items: center;
-  background-color: #ffffff;
+  background-color: #000000;  
   position: relative;
 }
-.MenuUser {
-  width: 30%;
-  z-index: 2000;
-  background-color: white;
-  transition: height 0.5s ease;
+.Search {
+  width: 100%;
   position: absolute;
+  display: flex;
+  justify-content: center;
+  margin-top: 80px;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+  background-color: rgb(255, 255, 255);
+  transition: height 0.5s ease; /* animate height instead of left */
+  overflow: hidden; /* prevents content from overflowing during animation */
+}
+
+.SearchInput{
+  width: 40%;
+  height: 40px;
+  outline: none;
+  border: 0;
+  border-bottom: 1px solid gray;
+  font-size: 18px;
+  position: relative;
+  top: 50px;
+}
+.SearchInput::placeholder {
+  color: rgb(0, 0, 0);
+  font-size: 20px;
+  font-weight: 300;
+  overflow: unset;
+  opacity: 0.5;
+}
+.MenuUser {
   top: 100%;
   left: 0;
-  overflow: hidden; 
+  width: 30%;
+  z-index: 2000;
+  background-color: rgb(0, 0, 0);
+  overflow: hidden;
+  transition: height 0.5s ease, padding 0.5s ease;  position: absolute;
+  overflow-y: scroll; /* ✅ allow scrolling */
+  overflow-x: hidden;
+  padding-bottom: 3%;
+  color: white;
+}
+.overflow {
+  width: 100%;
+  height: 1000px;         
+  position: absolute;
+  margin-top: 80px;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+  background-color: rgba(0, 0, 0, 0.203); /* semi-transparent dark overlay */
+  backdrop-filter: blur(20px);          /* adjust blur strength */
+}
+.overflow-2 {
+  width: 100%;
+  height: 1000px;         
+  position: absolute;
+  margin-top: 80px;
+  top: -20%;
+  left: 0;
+  z-index: 1000;
+  background-color: rgba(0, 0, 0, 0.596); /* semi-transparent dark overlay */
 }
 
 .MenuGenre{
@@ -52,23 +106,53 @@ body {
   align-items: center;
 }
 .MenuGenre h2{
-  font-size: 16px;
+  font-size: 19px;
   transition: all 0.2s;
   cursor: pointer;
 }
 .list-1{
-  width: 50%;
-  height: 100%;
+  width: 95%;
+  padding-left: 4%;
+  /* padding-bottom: 1%; */
 }
-.list-2{
-  width: 50%;
-  height: 85%;
-  overflow-y: scroll;
+/* ✅ Scrollbar Styling */
+.MenuUser::-webkit-scrollbar {
+  width: 8px; /* scrollbar width */
 }
-.list-1 li{
-  margin-bottom: 22%;
-  font-size: 15px;
+
+.MenuUser::-webkit-scrollbar-track {
+  background: transparent; /* ✅ transparent track */
+}
+
+.MenuUser::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.6); /* ✅ white thumb with transparency */
+  border-radius: 4px;
+}
+
+.MenuUser::-webkit-scrollbar-thumb:hover {
+  background-color: white; /* ✅ brighter on hover */
+}
+.list-1 h2 {
+  margin: 0;
+  font-size: 25px;
+  position: relative;
+  left: 0; /* starting point */
   cursor: pointer;
+  transition: left 0.5s ease; /* smoother, shorter animation */
+}
+.list-1 h4{
+  position:relative;
+  top: -20px;
+}
+.list-1 h2:hover {
+  left: 7%;
+  color: #FBCA00;
+}
+.SpanList{
+  display: flex;
+  width: auto;
+  align-items: center;
+  margin-bottom: 8%;
 }
 .list-2 li{
   color: #666666  ;
@@ -76,18 +160,64 @@ body {
   cursor: pointer;
 }
 .list-2 li:hover{
-  color: black;
+  color: rgb(255, 255, 255);
 }
-.HeaderBar-2{
-  width: 100%;
-  background-color: black;
+.HeaderBar-2 {
   width: 100%;
   height: 40px;
-  font-family: "Inter", sans-serif;
-  font-optical-sizing: auto;
-  font-weight: weight;
-  font-style: normal;
+  background-color: #f5c400; /* yellow */
+  overflow: hidden; /* hides the text outside */
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
+
+.scrolling-text {
+  display: inline-block;
+  white-space: nowrap;
+  padding-left: 100%; /* start outside from right */
+  animation: scroll-left 10s linear infinite;
+  font-weight: bold;
+  color: black;
+  font-size: 18px;
+  text-align: center;
+}
+
+@keyframes scroll-left {
+  0% {
+    transform: translateX(0);
+  }
+  90% {
+    transform: translateX(-100%);
+  }
+}
+.InfoBar {
+  width: 100%;
+  background-color: #f5c400; /* blue */
+  overflow: hidden;
+  color: rgb(0, 0, 0);
+  font-weight: bold;
+  padding: 8px 0;
+  position: relative;
+}
+
+.scrolling-wrapper {
+  display: inline-flex;
+  white-space: nowrap;
+  animation: scroll-left 20s linear infinite;
+}
+
+.scrolling-item {
+  display: inline-flex;
+  align-items: center;
+  margin: 0 50px; /* spacing between items */
+}
+
+@keyframes scroll-left {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); } /* only half, because we duplicated */
+}
+
 .HeaderBar-1{
   width: 100%;
   height: 60px;
@@ -98,12 +228,12 @@ body {
   font-style: normal;
   display: flex;
   align-items: center;
+  
 
 }
-.HeaderBar-1 .h1{
-  margin: 0;
-  color: black;
-  margin-left: 2%;
+.HeaderBar-1 img {
+  /* margin: 0; */
+  margin-left:520px;
 }
 .recherche{
   width: 25%;
@@ -147,7 +277,7 @@ body {
   height: 100%;
   display: flex;
   width: 30%;
-  left: 16%;
+  left: 19%;
   position: relative;
   gap: 3%;
   justify-content: flex-end;
@@ -156,7 +286,7 @@ body {
 .HeaderBar-4{ 
   z-index: 200;
   padding: 4px;
-  border: 1px solid black;
+  border: 1px solid rgb(255, 255, 255);
   position: relative;
 }
 .HeaderBar-4 button{
@@ -176,10 +306,10 @@ body {
   box-shadow: 0px 0px 4px 0px rgba(0,0,0,0.75);
   -webkit-box-shadow: 0px 0px 4px 0px rgba(0,0,0,0.75);
   -moz-box-shadow: 0px 0px 4px 0px rgba(0,0,0,0.75);
-  top: 0%;
-  z-index: 200;
-  transition: width 0.3s ease-in-out;
-
+  top: -46%;
+  z-index: 1100;
+  overflow: hidden;
+  transition: width 0.5s ease, padding 0.5s ease;  
 }
 .CountPCart{
   background-color: black;
@@ -279,10 +409,10 @@ body {
   box-shadow: 0px 0px 4px 0px rgba(0,0,0,0.75);
   -webkit-box-shadow: 0px 0px 4px 0px rgba(0,0,0,0.75);
   -moz-box-shadow: 0px 0px 4px 0px rgba(0,0,0,0.75);
-  top: 0%;
+  top: -47%;
   z-index: 100;
-  transition: width 0.3s ease-in-out;
-
+  overflow: hidden;
+  transition: width 0.5s ease, padding 0.5s ease;  
 }
 .ShoppingBag-Edit img{
   width: 70%;
@@ -1155,232 +1285,457 @@ body {
     padding: 0 1rem;
   }
 }
-/* ...............Contact...... */
-.Hcontact{
-  background-image: url('./images/unsplash.jpg');
-    width: 100%;
-    height: 700px;
-    background-size: cover;
-    background-position: bottom;  
-    position: fixed;
-    top: 0;
-    left: 0;
-    display: flex;
-    justify-content: center;
-    flex-direction: column;
-    z-index: 221;
-    animation: slideInFromTop 0.5s ease-out;
+
+/* divcontactHome */
+
+
+.divcontact{
+  width: 100%;
+  min-height: 120vh;
+  /* margin-left: 10%; */
+  z-index: -1;
+  position:absolute;
+  top: -10%;
+  /* margin-bottom: 2%; */
+  /* border-radius: 20px; */
+  background-image: url('./images/bachome2.jpg');
+  background-size: cover;
 }
-.Hcontact::before{
-  position: absolute;
+
+
+.divcontactHome {
+  background-image: url('./images/bachome2.jpg');
+  background-size: cover;
+  background-position: center;  
+  position: fixed;
   top: 0;
   left: 0;
-  z-index: 2;
   width: 100%;
-  height: 100%;
-  content: '';
-  background-color: rgba(0, 0, 0, 0.646);
-}
-.Xcontact{
-  position: absolute;
-  cursor: pointer;
-  right: 20px;
-  color: white;
-  top: 20px;
-  z-index: 10;
-}
-.Hcontact h1{
-  z-index: 10;
-  font-size: 60px;
-  margin: 0;
-  color: white;
-  text-align: center;
-  position: absolute;
-  top: 0;
-  left: 45%;
-  font-style: oblique;
-}
-.Hcontact-1{
-  width: 40%;
-  height: 60%;
-  position: relative;
-  bottom: 18%;
-  right: 5%;
+  height: 100vh; /* take full viewport height */
   display: flex;
   flex-direction: column;
-  backdrop-filter: blur(20px);
-  border-radius:20px;
-  z-index: 10;
-  color: white;
-}
-.Hcontact-1 h2{
-  width: 60%;
-  margin-left: 17%;
-  text-align: center;
-  font-size: 20px;
-}
-.Hcontact-1 p{
-  width: 85%;
-  text-align: center;
-  margin-left: 5%;
-  font-size: 20px;
-}
-.Hcontact-2{
-  width: 40%;
-  color: white;
-  height: 100%;
-  display: flex;
-  position: relative;
-  left: 70px;
-  top: -10%;
-  flex-direction: column;
-  z-index: 10;
-}
-.Hcontact-2 p{
-  margin: 0;
-  margin-top: 4%;
+  z-index: 2221;
+  animation: slideInFromTop 0.7s ease-out;
+  overflow-y: auto; /* enable scrolling */
+  overflow-x: hidden; /* prevent sideways scroll */
+  scroll-behavior: smooth;
 }
 
-.Hcontact-2 input::placeholder,textarea::placeholder {
-    color: black;
-    opacity: 0.5;
-}
-.Hcontact-2 textarea{
-    background: rgb(255, 255, 255); /* semi-transparent white */
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    color: rgb(0, 0, 0);
-    z-index: 10;
-    height: 100px;
-    outline: none;
-    font-size: 1rem;
-    width: 80%;
-    border-radius: 5px;
-    margin-top: 4%;
+
+/* Custom Scrollbar for WebKit browsers (Chrome, Edge, Safari) */
+.divcontactHome::-webkit-scrollbar {
+  width: 8px; /* scrollbar thickness */
 }
 
-.Hcontact-2 input {
-  height: 40px;
-  width: 75%;
-  padding: 0.2rem 1.5rem;
-  margin-top:2%;
-  padding-left: 4%;
-  border: none;
+.divcontactHome::-webkit-scrollbar-track {
+  background: rgb(255, 255, 255); /* track background */
   border-radius: 10px;
-  background: rgba(255, 255, 255, 0.95);
-  color: #333;
-  font-size: 1rem;
-  outline: none;
-  transition: all 0.3s ease;
 }
 
-.Hcontact-2 input::placeholder {
-  color: #666;
-  opacity: 0.7;
+.divcontactHome::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #00e6ad, #009977); /* thumb color */
+  border-radius: 10px;
 }
 
-.Hcontact-2 input:focus,textarea:focus {
-  background: #ffffff;
-  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.3);
-  transform: translateY(-2px);
+.divcontactHome::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #00ffc4, #00b68a); /* hover effect */
 }
 
-.Hcontact-2 input:disabled {
-  background: rgba(255, 255, 255, 0.7);
-  cursor: not-allowed;
-  opacity: 0.6;
+/* Firefox scrollbar */
+.divcontactHome {
+  scrollbar-width: thin; /* "auto" or "thin" */
+  scrollbar-color: #ffffff rgba(255, 255, 255, 0.3);
 }
-
-.send{
-  width: 40%;
-  height: 40px;
-  background-color: white;
-  color: black;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  margin-top: 25px;
-  font-weight: 600;
-  transition: all 0.3s ease;
-  position: relative;
-  left: 20%;
-  overflow: hidden;
-}
-
-.send:hover{
-  transform: translateY(-3px);
-  box-shadow: 0 6px 12px rgba(0,0,0,0.3);
-  background-color: #f8f8f8;
-}
-
-.send:active{
-  transform: translateY(-1px);
-  box-shadow: 0 3px 6px rgba(0,0,0,0.2);
-}
-
 @keyframes slideInFromTop {
   from {
-    transform: translateY(-100%);
     opacity: 0;
+    transform: translateY(-50px);
   }
   to {
-    transform: translateY(0);
     opacity: 1;
+    transform: translateY(0);
   }
 }
 
-@keyframes slideOutToTop {
-  from {
-    transform: translateY(0);
-    opacity: 1;
-  }
-  to {
-    transform: translateY(-100%);
-    opacity: 0;
-  }
+.divcontactHome::before {
+  content: "";
+  position: fixed;
+  display: flex;
+  width: 100%;
+  min-height: 100%;
+  background-color:#0c0e11dd; 
+  z-index:0;
 }
+
+.divcontactHome h1{
+  color: white;
+  text-align: center;
+  font-size: 45px;
+}
+.divcontactHome p{
+  color: rgb(147, 161, 190);
+  text-align: center;
+  font-size: 20px;
+  width: 70%;
+  margin-left: 15%;  
+  margin-bottom: 5%;
+}
+.InformationsContact{
+  width: 43%;
+  display:unset;
+  height: 460px;
+  position: relative;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgb(79, 79, 102);
+  border-radius: 10px;
+}
+.InformationsContact h1{
+  font-size: 22px;
+  /* position: absolute; */
+  display: flex;
+  align-items: center;
+  /* justify-content: center; */
+  gap: 2%;
+  margin-left: 4%;
+  width: 90%;
+}
+.InformationsContact p{
+  font-size: 16px;
+  color: #758091;
+  display: flex;
+  align-items: center;
+  gap: 2%;
+  margin-left: 10%;
+  width: 80%;
+}
+.InformationsContact h2{
+  font-size: 16px;
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 2%;
+  margin-left: 4%;
+  width: 90%;
+}
+.InformationsContact h3{
+  font-size: 22px;
+  /* position: absolute; */
+  display: flex;
+  color: white;
+  align-items: center;
+  /* justify-content: center; */
+  gap: 2%;
+  margin-left: 4%;
+  width: 90%;
+}
+.FormContact{
+  width: 100%;
+  height: 70px;
+  display: flex;
+  margin-top: 7%;
+}
+.FormContact h4{
+  margin: 0;
+  color: white;
+  font-weight: 400;
+}
+.FormContact input{
+  width: 240px;
+  height: 35px;
+  color: white;
+  border-radius: 10px;
+  background-color: #15161D;
+  border: 1px solid #2c3046;
+  margin-top: 3%;
+  padding-left: 2%;
+}
+.FormContact textarea{
+  color: white;
+  width: 502px;
+  height: 115px;
+  border-radius: 10px;
+  background-color: #15161D;
+  border: 1px solid #2c3046;
+  margin-top: 3%;
+  padding-left: 2%;
+}
+.FormContact input::placeholder,textarea::placeholder {
+  color: rgb(255, 255, 255);
+  opacity: 0.4;
+}
+.InformationsContact button{
+  width: 500px;
+  height: 40px;
+  margin-left: 5%;
+  position: absolute;
+  bottom: 15px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #03F7EB;
+  border-radius: 10px;
+  border: 0;
+  gap: 5%;
+  cursor: pointer;
+  font-size: 17px;
+}
+.rejoindre{
+  width: 550px;
+  height: 270px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgb(79, 79, 102);
+  border-radius: 10px; 
+  position: absolute;
+  bottom:-410px;
+  left: 4%;
+}
+.rejoindre h1{
+  font-size: 29px;
+  width: 90%;
+  text-align: start;
+  margin-left: 5%;
+  font-weight: 500;
+}
+.rejoindre h3{
+  font-size: 14px;
+  width: 90%;
+  text-align: start;
+  margin-left: 5%;
+  font-weight: 500;
+  color: white;
+  display: flex;
+  gap: 2%;
+  align-items: center;
+}
+
 
 /* ..................Commande................ */
-.Commande{
+.Commande {
   width: 100%;
   position: absolute;
   top: 0;
-  background-color: #f9f9f9;
+  background-color: #ffffff;
   z-index: 3000;
   color: black;
-  text-align: center;
   min-height: 100vh;
+  overflow-y: auto;
+  padding-bottom: 40px;
 }
-.Commande h1{
+
+.Commande h1 {
   font-size: 40px;
-/* font-family: "Josefin Sans", sans-serif;
-  font-optical-sizing: auto;
-  font-weight: weight;
-  font-style: normal; */
+  margin-top: 0;
+  text-align: center;
 }
-.Continuer{
-  width: 50%;
-  margin-left: 25%;
-  height: 60px;
-  position: fixed;
-  bottom: 10px;
+.Commande h4 {
+  color: rgb(96, 96, 96);
+  font-weight: 300;
+  margin-top: 0;
+  text-align: center;
+}
+
+/* --- Layout --- */
+.facturation {
+  display: flex;
+  justify-content: space-between;
+  gap: 2%;
+  flex-wrap: wrap;
+  width: 100%;
+  min-height: 80vh;
+  margin-top: 20px;
+}
+.facturation-1 {
+  flex: 1 1 65%;
+  min-height: 80vh;
+  padding: 0 1% 4% 1%;
+}
+.facturation-2 {
+  flex: 1 1 30%;
+  padding: 20px;
+  background-color: #f5f5f5;
+  border-left: 1px solid #ddd;
+  border-radius: 10px;
+  display: block;
+  position: sticky;
+  top: 20px;
+  height: fit-content;
+}
+
+/* --- Form --- */
+#Form {
+  border-radius: 10px;
+  width: 93%;
+  border: 1px solid rgba(128, 128, 128, 0.347);
+  padding: 10px;
+  transition: all 0.3s ease;
+}
+#Form:hover,
+#Form:focus {
+  border: 1px solid black;
+  box-shadow: 0px 4px 10px rgba(0,0,0,0.15);
+}
+
+.form {
+  width: 100%;
+  padding: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14%;
+}
+.input-group {
+  position: relative;
+  width: 300px;
+  margin: 20px 0;
+}
+.input-group input {
+  width: 100%;
+  padding: 12px;
+  font-size: 15px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  outline: none;
+  transition: border 0.3s, box-shadow 0.3s;
+}
+.input-group input:focus {
+  border: 1px solid #000;
+  box-shadow: 0 0 5px rgba(0,0,0,0.2);
+}
+.input-group label {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #aaa;
+  pointer-events: none;
+  transition: 0.3s ease all;
+  background: white;
+  padding: 0 4px;
+}
+.input-group input:focus + label,
+.input-group label.active {
+  top: -6px;
+  font-size: 12px;
+  color: black;
+}
+
+/* --- Dropdown --- */
+.dropdown {
+  position: relative;
+  width: 250px;
+  margin: 20px 0;
+}
+.dropdown-btn {
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background: #fff;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+}
+.dropdown-content {
+  position: absolute;
+  top: 110%;
+  left: 0;
+  width: 100%;
+  max-height: 200px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  z-index: 20;
+}
+.dropdown-content input {
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-bottom: 1px solid #eee;
+  outline: none;
+  font-size: 14px;
+}
+.dropdown-item {
+  padding: 10px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.dropdown-item:hover {
+  background: #f1f1f1;
+}
+
+/* --- Resume Achat --- */
+.Continuer {
+  margin-top: 20px;
   display: flex;
   align-items: center;
-  justify-content: space-around;
-  color: white;
-  background-color: #000000;
-}   
-.btC{
-  z-index: 200;
+  justify-content: space-between;
+}
+.btC {
   padding: 4px;
   border: 1px solid rgb(255, 255, 255);
-  position: relative;
 }
-.btContinuer{
+.btContinuer {
   padding: 10px 72px;
   border: 0;
   cursor: pointer;
+  background: #000;
+  color: #fff;
+  border-radius: 6px;
+  font-weight: bold;
+  transition: 0.3s;
 }
+.btContinuer:hover {
+  background: #333;
+}
+
+/* --- Footer --- */
+.footer-2 {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid #ddd;
+  font-size: 14px;
+  color: #000;
+  background: #fff;
+  padding: 15px 5%;
+}
+.footer-links {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.footer-links a {
+  text-decoration: none;
+  color: #000;
+  font-weight: 500;
+}
+.footer-links a:hover {
+  text-decoration: underline;
+}
+.footer-copy {
+  font-weight: bold;
+}
+
+/* --- Responsive --- */
+@media (max-width: 768px) {
+  .facturation {
+    flex-direction: column;
+  }
+  .facturation-1,
+  .facturation-2 {
+    flex: 1 1 100%;
+    width: 100%;
+  }
+  .facturation-2 {
+    margin-top: 20px;
+    position: relative;
+  }
+}
+
+
 /* ..................ChangeComp................ */
 
 .ChangeComp{
@@ -1403,14 +1758,198 @@ body {
   top: 0;
   z-index: 2200;
   display: flex;
+  background-color: white;
 }
 .SeConnect-1{
   width: 55%;
   min-height: 80vh;
   background-image: url('./images/bachome2.jpg');
   background-size: cover;
+  position: relative;
   background-position-y: 680px;
 }
+
+.pc-page {
+  min-height: 100vh;
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 28px;
+  box-sizing: border-box;
+}
+
+.pc-wrap {
+  width: 96%;
+  max-width: 800px;
+}
+
+.pc-theme {
+  margin-bottom: 10px;
+  font-size: 13px;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.pc-card {
+  background: #ffffff;
+  border-radius: 18px;
+  box-shadow: 0 6px 18px rgba(2, 6, 23, 0.06);
+  padding: 16px;
+  box-sizing: border-box;
+  position: absolute;
+  bottom: 20px;
+  margin-right: 18px;
+  border: 1px solid rgba(15, 23, 42, 0.02);
+}
+
+.pc-prompt {
+  margin: 0;
+  color: #0f172a;
+  font-size: 14px;
+  line-height: 1.5;
+  letter-spacing: 0.1px;
+}
+
+.pc-controls {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin-top: 14px;
+}
+
+.pc-left,
+.pc-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.pc-center {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
+.pc-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9px;
+  border: 1px solid #e6eef6;
+  background: transparent;
+  height: 38px;
+  min-width: 38px;
+  padding: 0 8px;
+  cursor: pointer;
+  transition: background 0.14s, transform 0.06s;
+  font-size: 16px;
+  background-color: #182B2B;
+  color: white;
+}
+
+.pc-btn:active {
+  transform: translateY(1px);
+}
+.pc-btn:hover {
+  background: rgba(2, 6, 23, 0.02);
+}
+
+.pc-plus {
+  width: 38px;
+  height: 38px;
+  font-weight: 600;
+}
+.pc-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 999px;
+  padding: 6px 10px;
+  background: #f8fafb;
+  border: 1px solid rgba(15, 23, 42, 0.03);
+  font-size: 13px;
+  font-weight: 600;
+  color: #64748b;
+  box-shadow: 0 1px 0 rgba(15, 23, 42, 0.02);
+}
+
+.pc-tag-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  font-size: 12px;
+  color: #059669;
+}
+
+.pc-tag-caret {
+  font-size: 11px;
+  color: #64748b;
+  margin-left: 2px;
+}
+
+.pc-variant {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 18px;
+  border-radius: 999px;
+  border: 1px solid rgba(15, 23, 42, 0.04);
+  font-weight: 600;
+  font-size: 13px;
+  background: #ffffff;
+  box-shadow: 0 1px 0 rgba(15, 23, 42, 0.02);
+}
+
+.pc-mic {
+  width: 38px;
+  height: 38px;
+  font-size: 14px;
+}
+
+.pc-send {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 0;
+  background: #000;
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-weight: 700;
+  box-shadow: 0 6px 14px rgba(2, 6, 23, 0.12);
+  transition: transform 0.08s, box-shadow 0.12s;
+}
+
+.pc-send:active {
+  transform: translateY(1px);
+  box-shadow: 0 4px 10px rgba(2, 6, 23, 0.1);
+}
+
+@media (max-width: 640px) {
+  .pc-wrap {
+    padding: 0 6px;
+  }
+  .pc-controls {
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .pc-center {
+    order: 3;
+    width: 100%;
+    margin-top: 8px;
+  }
+  .pc-right {
+    order: 2;
+    margin-left: auto;
+  }
+}
+
+
+
 .SeConnect-2{
   width: 45%;
   overflow: hidden;
@@ -1435,16 +1974,17 @@ body {
   text-align: center;
 }
 .SeConnect-2 input{
-  width: 60%;
+  width: 40%;
   height: 30px;
   outline: none;
-  padding: 5px;
+  padding: 2px;
   margin-top: 1%;
   margin-left: 17%;
-  border: 2px solid black;
+  border-radius: 5px;
+  border: 1px solid #132827;
 }
 input::placeholder {
-  color: gray;
+  color: #182B2F;
   font-weight: 600;
   opacity: 0.5;
   margin-left: 20%;
@@ -1495,6 +2035,12 @@ input::placeholder {
 .fade-in {
   animation: fadeIn 0.5s;
 }
+
+#Resetph4{
+  color: black;
+  position: relative;
+  left: 22%;
+}
 /* ...................Connect.............. */
 
 .ContactPage{
@@ -1504,6 +2050,176 @@ input::placeholder {
   background-size: cover;
   background-position: center;
 }
+
+
+/*       ResetPasword */
+
+.ResetPasword{
+  width: 100%;
+  min-height: 100vh;
+  background-color: #0B0D10;
+  background-image: url('./images/bachome2.jpg');
+  background-size: cover;
+  position: absolute;
+  top: 0;
+  display: flex;
+  z-index: 3000;
+  flex-direction: column;
+  overflow: hidden;
+  align-items: center;
+}
+.ResetPasword h2{
+  color: white;
+  text-align: center;
+}
+.ResetP{
+  width: 37%;
+  height:470px;
+  margin-top: 1%;
+  border-radius: 15px;
+  background-color: #101318;
+}
+
+.IconRest {
+  width: 65px;
+  height: 65px;
+  border-radius: 50%;
+  margin-left: 43%;
+  margin-top: 3%;
+  background: rgba(255, 255, 255, 0.833); /* circle base */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #000000;
+  position: relative;
+  overflow: visible;
+  animation: float 7s ease-in-out infinite;
+}
+#Retour{
+  text-decoration: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 12%;
+  gap: 2%;
+  cursor: pointer;
+}
+#Retour:hover{
+  color: #00E6AD;
+}
+
+
+/* Floating animation */
+@keyframes float {
+  0% {
+    transform: translateY(20px);
+  }
+  50% {
+    transform: translateY(-15px); /* move up */
+  }
+  100% {
+    transform: translateY(20px); /* back down */
+  }
+}
+.ResetP h1{
+  text-align: center;
+  color: white;
+  font-size: 25px;
+  margin-top: 7%;
+}
+.ResetP p{
+  text-align: center;
+  color: rgb(192, 192, 192);
+  font-size: 13px;
+}
+.ResetP h4{
+  color: rgb(255, 255, 255);
+  font-size: 15px;
+  margin-left: 40px;
+}
+.ResetP input {
+  margin-left: 40px;
+  height: 43px;
+  width: 83%;
+  background-color: #21252baf; /* dark background */
+  border: none;
+  border-radius: 6px; /* rounded corners */
+  padding: 0 12px;
+  font-size: 14px;
+  color: #e0e0e0; /* text color */
+  outline: none;
+}
+
+.ResetP input::placeholder {
+  color: #8a8f98; /* lighter gray for placeholder */
+  opacity: 0.8;
+}
+.ResetP button{
+  width: 88%;
+  height: 40px;
+  background-color: #ffffff;
+  border: 0;
+  position: relative;
+  left: 40px;
+  top: 5%;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.CodeInputs {
+  display: flex;
+  justify-content: center;
+  gap: 1px;   /* spacing between inputs */
+  margin: 50px 0;
+}
+
+.CodeInputs input {
+  width: 30px;             /* square shape */
+  height: 40px;
+  text-align: center;
+  font-size: 24px;         /* bigger text */
+  font-weight: bold;
+  border: 2px solid #ffffff;
+  border-radius: 10px;
+  background-color: #0B0D10; /* dark background */
+  color: white;
+  outline: none;
+  transition: 0.3s;
+}
+
+.CodeInputs input:focus {
+  border-color: #13bdac;
+  box-shadow: 0 0 8px #13bdac;
+}
+
+.BtnGroup {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  margin-top: 65px;
+}
+
+.BtnGroup button {
+  flex: 1;                      
+  max-width: 160px;
+  padding: 12px 0;
+  font-weight: bold;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.3s;
+  color: rgb(0, 0, 0);
+  margin-right: 8%;
+}
+
+.BtnGroup button:hover {
+  opacity: 0.9;
+}
+
+
+
+
 
 /* ...................ProductsU.............. */
 .ProductsU{
@@ -1515,7 +2231,21 @@ input::placeholder {
   min-height: 32vh;
   gap: 1%;
 }
-
+.FunnelIcon{
+  height: 40px;
+  width: 42px;
+  display: flex;
+  align-items: center;
+  z-index: 50;
+  cursor: pointer;
+  border: 3px solid rgb(0, 0, 0);
+  justify-content: center;
+  color: rgb(0, 0, 0);
+  position: relative;
+  left: 10px;
+  margin-top: 20px;
+  border-radius: 50%;
+}
 .productU{
   cursor: pointer;
   width: 32%;
@@ -1535,32 +2265,43 @@ input::placeholder {
   width: 100%;
   display: flex;
 }
+.filter-section h3{
+  font-size: 17px;
+  margin-left: 3%;
+}
 .FilterdPrd{
-  width: 30%;
-  margin-top: 7%;
+  position: fixed;
+  top: 0px;
+  z-index: 3000;
+  overflow-y: auto;
   padding-left: 1%;
-  min-height: 600px;
+  height: 555px;
+  background-color: #141414;
+  color:white;
   padding-bottom: 3%;
   /* background-color: #b14646; */
 }
 .prixFilter{
+  position: relative;
   padding-left: 5%;
 }
 .prixFilter h3{
   font-weight: 300;
+  color: white;
 }
 .prixBetween{
   width: 100%;
   display: flex;
   position: relative;
   left: -10px;
+  
   justify-content: space-between;
 }
 .prixBetween h5{  
   margin: 0;
-  font-weight: 600;
-  font-size: 18px;
-  color: #0000008d;
+  font-weight: 500;
+  font-size: 15px;
+  color: #ffffff;
 }
 .border{
   width: 90%;
@@ -1573,32 +2314,19 @@ input::placeholder {
 }
 
 .ColorsproductU{
-  overflow-y: scroll;
-  overflow-x: hidden;
-  max-height: 270px;
   margin-bottom: 13%;
   scrollbar-width: thin;      /* "auto" | "thin" | "none" */
   scrollbar-color: #b3b3b3 transparent; /* thumb | track */
 }
 
 /* For Chrome, Edge, Safari */
-.ColorsproductU::-webkit-scrollbar {
-  width: 6px; /* scrollbar width */
-}
 
-.ColorsproductU::-webkit-scrollbar-track {
-  background: transparent; /* track color */
-}
-
-.ColorsproductU::-webkit-scrollbar-thumb {
-  background-color: #a3a3a3; /* thumb color */
-  border-radius: 10px;       /* rounded edges */
-  border: 2px solid transparent; /* padding around thumb */
-}
 .SelectedColor{
   /* background-color: violet; */
   margin: 2px;
   padding: 3%;
+  width: 75%;
+  margin-left: 7%;
   align-items: center;
   justify-content: space-between;
 }
@@ -1625,13 +2353,41 @@ input::placeholder {
   transition: width 0.3s ease;
 }
 
+
 .colorItem:hover h4::before {
   width: 100%;
 }
 .filterColor{
-  padding: 5px 6px;
-  border: 1px solid rgb(176, 176, 176);
-  size: 22px;
+  height: 12px;
+  width:  12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* border: 1px solid rgb(176, 176, 176); */
+  /* background-color: #000000; */
+  font-weight: 300;
+  color: rgb(255, 255, 255);
+  position: relative;
+  font-size: 15px;
+}
+.filterColor::before {
+  content: "";
+  position: absolute;
+  border-radius: 20%;
+  left: 0;
+  bottom: 0; /* or top: 0; depending where you want */
+  width: 0;
+  height: 100%; /* covers full height of h4 */
+  background-color: rgb(0, 0, 0);
+  z-index: -1;
+  color: white;
+  transition: width 0.3s ease;
+}
+.SizesF:hover .filterColor::before {
+  width: 100%;
+}
+.SizesF:hover .filterColor{
+  color: white;
 }
 #id{
   padding: 5px 6px;
@@ -1639,16 +2395,46 @@ input::placeholder {
   size: 22px;
 }
 .countColors{
-  border: 1px solid rgb(152, 152, 152);
-  color:  rgb(152, 152, 152);
+  border: 1px solid rgb(67, 67, 67);
+  color:  rgb(245, 245, 245);
   font-size: 10px;
+  background-color: #000000;
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 22px;
-  height: 20px;
+  /* width: 22px;
+  height: 20px; */
   font-weight: 600;
+  font-size: 13px;
+  padding: 5px 10px;
   border-radius: 20%;
+}
+.countSizes{
+  /* border: 5px solid rgb(0, 0, 0); */
+  color:  rgb(255, 255, 255);
+  font-size: 10px;
+  background-color: #00000017;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 25px;
+  height: 27px;
+  font-weight: 600;
+  border-radius: 50%;
+}
+.BrushCleaning{
+  position: relative;
+  bottom: 33px;
+  color: #b7b7b7;
+  left: 250px;
+  cursor: pointer;
+}
+.BrushCleaningSizes{
+  position: absolute;
+  color: #0000004a;
+  bottom: 235px;
+  left: 240px;
+  cursor: pointer;
 }
 .colorItem{
   width: 100%;
@@ -1668,7 +2454,8 @@ input::placeholder {
   justify-content: space-between;
   gap: 30px;
   margin-bottom: 2%;
-  width: 95%;
+  width: 75%;
+  margin-left: 10%;
   height: 40px;
   padding: 0;
   cursor: pointer;
@@ -1687,7 +2474,7 @@ input::placeholder {
   position: relative;
   height: 80%;
   border-radius: 10px;
-  width: 90%;
+  width: 100%;
 }
 .sizesPU{
   position: absolute;
@@ -1862,23 +2649,66 @@ input::placeholder {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 10%;
-  background: #fff;
+  gap: 4%;
+  background: #ffffff;
   border-radius: 18px;
   box-shadow: 0 4px 24px rgba(0,0,0,0.07);
   padding: 32px;
+  background-color: #ffffff13;
+  position: relative;
   height: 500px;
   max-width: 480px;
 }
 
-.mainImage {
-  width: 100%;
-  max-width: 350px;
-  border-radius: 12px;
-  object-fit: cover;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+.image-wrapper {
+  width: 470px;   
+  height: 500px;  
+  position: absolute;
+  overflow: hidden; 
+  border-radius: 10px;
 }
 
+.mainImage {
+  width: 100%;
+  object-position: center;
+  height: 100%;
+object-fit: contain;
+  display: block;
+  margin: 0 auto;  
+  border-radius: 10px;
+  
+}
+.Arrow{
+  padding: 11px;
+  background-color: #00000009;
+  backdrop-filter: blur(20px);
+  /* outline: none; */
+  z-index:2;
+  color: rgb(0, 0, 0);
+  border-radius: 50%;
+}
+.Arrow-1{
+  padding: 11px;
+  position: absolute;
+  left: 20px;
+  background-color: #00000009;
+  backdrop-filter: blur(20px);
+  /* outline: none; */
+  z-index:2;
+  color: rgb(0, 0, 0);
+  border-radius: 50%;
+}
+.Arrow-2{
+  padding: 11px;
+  position: absolute;
+  right:  20px;
+  background-color: #00000009;
+  backdrop-filter: blur(20px);
+  /* outline: none; */
+  z-index:2;
+  color: rgb(0, 0, 0);
+  border-radius: 50%;
+}
 .details {
   flex: 1 1 350px;
   background: #fff;
@@ -2001,6 +2831,7 @@ input::placeholder {
   width: 100%;
   height: 400px;
   margin-top: 6%;
+  overflow-x: hidden;
   display: flex;
   justify-content: space-around;
   align-items: center;
@@ -2032,13 +2863,7 @@ input::placeholder {
 .productsSub.slide-right {
   animation: slideRight 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
-.Arrow{
-  padding: 5px;
-  background-color: #00000009;
-  backdrop-filter: blur(20px);
-  color: rgb(0, 0, 0);
-  border-radius: 50%;
-}
+
 @keyframes slideLeft {
   0% {
     transform: translateX(100%);
@@ -2135,20 +2960,35 @@ input::placeholder {
   color: grey;
 }
 .ManagementDashboard-2{
-  width: 81%;
-  /* top: 10px; */
+  width: 86%;
   z-index: -1;
+  min-height: 80vh;
   position: relative;
   /* left: 3%; */
+  overflow-x: hidden;
   border-radius: 10px;
 }
+.ManagementDashboard-2::-webkit-scrollbar {
+  width: 8px; /* scrollbar width */
+}
 
+.ManagementDashboard-2::-webkit-scrollbar-track {
+  background: transparent; /* ✅ transparent track */
+}
+
+.ManagementDashboard-2::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.6); /* ✅ white thumb with transparency */
+  border-radius: 4px;
+}
+
+.ManagementDashboard-2::-webkit-scrollbar-thumb:hover {
+  background-color: white; /* ✅ brighter on hover */
+}
 /* ...................DashBord.............. */
 
 .DashBord{
   margin-left: 2%;
-  /* background-color: #007bff; */
-  /* overflow-y: hijdden; */
+  overflow-x: hidden;
 }
 .DashBord-Title{
   width: 90%;
@@ -2329,7 +3169,7 @@ input::placeholder {
 /* ...................UserMangment ...............*/
 .UserMangment{
   width: 100%;
-  height: 97%;
+  height: 92%;
   padding: 1.5%;
 }
 .HeaderMangment{
@@ -2432,7 +3272,7 @@ th:last-child {
 /*.................. CategroiesDashBord.................. */
 .CategroiesDashBord{
   width: 100%;
-  height: 100%;
+  height: 90%;
 }
 .SubModal{
   position: absolute;
@@ -3284,12 +4124,16 @@ th:last-child {
 }
 
 /* Profile Component Styles */
+
+
 .ProfileComp {
   min-height: 100vh;
   background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
   padding: 20px;
   font-family: "Inter", sans-serif;
 }
+
+
 
 .profile-loading {
   display: flex;

@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useParams, useLocation, Link ,useNavigate} from 'react-router-dom';
 import { ArrowRight, ArrowLeft, ShoppingBag, Mail, Instagram } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
+import { motion, AnimatePresence } from "framer-motion";
 
 const ProductSelect = ({ setShowBag }) => {
   const location = useLocation();
@@ -130,9 +131,12 @@ const ProductSelect = ({ setShowBag }) => {
       return () => clearTimeout(timer);
     }
   }, [slideDirection]);
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });  
+  }, []);
 
   const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 100, behavior: 'smooth' });
   };
 
   const handleNextImage = () => {
@@ -190,21 +194,33 @@ const ProductSelect = ({ setShowBag }) => {
 
   return (
     <div className="ProductSelect">
-      <div className='HeaderBar-2'>
+      {/* <div className='HeaderBar-2'>
         <h3 style={{ color: "white", textAlign: "center", padding: "6px", margin: 0 }}>
           Livraison gratuite à partir de 120 DT
         </h3>
-      </div>
+      </div> */}
 
       {product && (
         <div style={{ display: 'flex', justifyContent: "center", alignItems: "flex-end", width: "100%", gap: "48px" }}>
           <div className="gallery">
-            <div className='Arrow' onClick={handlePrevImage}>
-              <ArrowLeft style={{ cursor: "pointer" }}  />
+            <div className='Arrow-1' onClick={handlePrevImage}>
+              <ArrowLeft  style={{ cursor: "pointer",zIndex:'-1' }}  />
             </div>
-            <img src={image} alt={name} className="mainImage" />
-            <div className='Arrow' onClick={handleNextImage}>
-              <ArrowRight style={{ cursor: "pointer" }}  />
+            <div className="image-wrapper">
+              <AnimatePresence mode="wait">
+                <motion.img
+                  key={image}
+                  src={image}
+                  className='mainImage'
+                  alt={name}
+                  initial={{ opacity: 0, x: 100 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -100 }}
+                  transition={{ duration: 0.2, ease: "easeInOut" }}
+                />
+              </AnimatePresence>            </div>
+            <div className='Arrow-2' onClick={handleNextImage}>
+              <ArrowRight style={{ cursor: "pointer",zIndex:'-1' }}  />
             </div>
           </div>
 

@@ -148,12 +148,12 @@ const ProfileComp = () => {
 
         <div className="profile-content">
           <div className="profile-picture-section">
-            <div className="profile-picture">
+            {/* <div className="profile-picture">
               <User size={80} />
               <div className="camera-icon">
                 <Camera size={20} />
               </div>
-            </div>
+            </div> */}
             <h3>{user.firstName} {user.lastName}</h3>
             <p className="user-role">{user.role}</p>
           </div>
