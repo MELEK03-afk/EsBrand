@@ -2,6 +2,7 @@ import User from "../../models/User.js"
 import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken"
 import Cart from "../../models/Cart.js"
+import Order from "../../models/Order.js"
 import Abonne from "../../models/Abonne.js"
 import validator from 'validator'
 import Product from "../../models/Product.js"
@@ -239,6 +240,67 @@ export const addToCart = async (req, res) => {
     }
 };
 
+export const createOrder = async (req, res) => {
+  const { id } = req.params;
+  const {
+    nom,
+    prenom,
+    email,
+    telephone,
+    rue,
+    complement,
+    ville,
+    province,
+    postal,
+  } = req.body;
+  console.log(id);
+  try {
+    // 1️⃣ Check required info
+    if (!id || !nom || !prenom || !rue || !ville) {
+      return res.status(400).json({ message: "Informations incomplètes." });
+    }
+
+    // 2️⃣ Get user cart
+    const cart = await Cart.findOne({ userId:id }).populate("products.productId");
+    if (!cart || cart.products.length === 0) {
+      return res.status(400).json({ message: "Votre panier est vide." });
+    }
+
+    // 3️⃣ Calculate total
+    const totalAmount = cart.products.reduce((sum, item) => {
+      const price = item.productId?.price || 0;
+      return sum + price * item.quantity;
+    }, 0);
+
+    // 4️⃣ Create new order
+    const newOrder = new Order({
+      id,
+      customerInfo: { nom, prenom, email, telephone },
+      shippingAddress: { rue, complement, ville, province, postal },
+      products: cart.products.map((item) => ({
+        productId: item.productId._id,
+        quantity: item.quantity,
+        size: item.size,
+        color: item.color,
+      })),
+      totalAmount,
+    });
+
+    await newOrder.save();
+
+    // 5️⃣ Optionally clear the cart after order
+    await Cart.findOneAndUpdate({ userId: id }, { products: [] });
+
+    // 6️⃣ Respond success
+    return res.status(201).json({
+      message: "Commande enregistrée avec succès.",
+      order: newOrder,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: "Erreur serveur lors de la commande." });
+  }
+};
 export const getCart = async (req, res) => {
     try {
         const { userId } = req.params;

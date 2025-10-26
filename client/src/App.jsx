@@ -17,17 +17,26 @@ import ProfileComp from './components/ProfileComp';
 import CommandeComp from './components/CommandeComp';
 import ConfirmSubscribePage from './components/ConfirmSubscribePage'
 import ResetPasword from './components/ResetPassword'
+import AboutComp from './components/AboutComp'
+import ChangeComp from './components/ChangeComp'
 function App() {
   const [count, setCount] = useState(0)
   const [showBag, setShowBag] = useState(false); // LIFTED STATE
 
   return (
     <Router>
-      <HeaderBar setShowBag={setShowBag} showBag={showBag} />
+      <HeaderBar
+        setShowBag={setShowBag}
+        showBag={showBag}
+      />
+      {/* ✅ Put your SearchMobileComp here */}
+      
       <Routes>
+        <Route path='/changedsdsdaad' element={<ChangeComp />}/>
         <Route path='/' element={<HomeComp/>}/>
         <Route path='/PorductSelecte/:id' element={<PorductSelecte setShowBag={setShowBag} />}/>
         <Route path='/Seconnect' element={<SeConnect/>}/>
+        <Route path='/AboutEs' element={<AboutComp/>}/>
         <Route path='/ResetPassword' element={<ResetPasword/>}/>
         <Route path='/ProductU/:subcategoryName' element={<ProductsU/>}/>
         <Route path='/Commande' element={<CommandeComp/>}/>

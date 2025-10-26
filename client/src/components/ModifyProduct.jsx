@@ -45,7 +45,7 @@ const ModifyProduct = ({id,setModify}) => {
 
   const getCategory = async () => {  
     try {
-      const res = await axios.get("http://localhost:2025/api/Admin/Get-category",{
+      const res = await axios.get("http://192.168.1.17:2025/api/Admin/Get-category",{
         headers: {
           'Authorization': `Bearer ${user.token}`
           }
@@ -63,7 +63,7 @@ const ModifyProduct = ({id,setModify}) => {
 
   const getSubCategory = async (id) => {  
     try {
-      const res = await axios.get(`http://localhost:2025/api/Admin/Get-Subcategory/${id}`,{
+      const res = await axios.get(`http://192.168.1.17:2025/api/Admin/Get-Subcategory/${id}`,{
         headers: {
           'Authorization': `Bearer ${user.token}`
           }
@@ -149,7 +149,7 @@ const ModifyProduct = ({id,setModify}) => {
 
   const GetProduct = async () => {
     try {
-      const res = await axios.get(`http://localhost:2025/api/Admin/Get-product/${id}`, {
+      const res = await axios.get(`http://192.168.1.17:2025/api/Admin/Get-product/${id}`, {
         headers: {
           'Authorization': `Bearer ${user.token}`
         }
@@ -236,7 +236,7 @@ const ModifyProduct = ({id,setModify}) => {
     }
     
     try {
-      const res = await axios.put(`http://localhost:2025/api/Admin/UpdateProduct/${id}`, formData, {
+      const res = await axios.put(`http://192.168.1.17:2025/api/Admin/UpdateProduct/${id}`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
           Authorization: `Bearer ${user.token}`
@@ -255,7 +255,23 @@ const ModifyProduct = ({id,setModify}) => {
       setLoading(false);
     }
   };
-
+  const DeleteProduct = async () => {
+    try {
+      const res = await axios.delete(`http://192.168.1.17:2025/api/Admin/Delete-Product/${id}`, {
+        headers: {
+          'Authorization': `Bearer ${user.token}`
+        }
+      });
+      if (res.status === 200) {
+        setModify(false)
+        window.location.reload();
+      }
+    } catch (err) {
+      console.error('Error fetching product:', err);
+      toast.error('Erreur lors du chargement du produit');
+      setLoading(false);
+    }
+  };
   if (loading) {
     return (
       <div className='AddProduct'>
@@ -287,7 +303,7 @@ const ModifyProduct = ({id,setModify}) => {
                       onClick={() => removeColorImage(color, idx, true)}
                     />
                     <img
-                      src={`http://localhost:2025/${url}`}
+                      src={`http://192.168.1.17:2025/${url}`}
                       alt={`${color} ${idx}`}
                       style={{
                         width: "160px",
@@ -464,7 +480,6 @@ const ModifyProduct = ({id,setModify}) => {
               )}
             </div>
           </div>
-
           <div style={{ display: "flex", marginBottom: "4%" }}>
             <div className='donner' style={{display:"flex",}}>
               <p>Featured Product</p>
@@ -476,8 +491,17 @@ const ModifyProduct = ({id,setModify}) => {
               />
             </div>
           </div>
-
+          
           <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "20px" }}>
+          <button style={{
+                padding: "10px 60px",
+                borderRadius: "8px",
+                border: "none",
+                background: "#a50505ff",
+                color: "white",
+                marginRight:"3%",
+                cursor: "pointer"
+              }} onClick={DeleteProduct}>delete</button>
             <button
               type="submit"
               style={{
@@ -493,6 +517,7 @@ const ModifyProduct = ({id,setModify}) => {
             >
               {loading ? "Updating..." : "Update Product"}
             </button>
+            
           </div>
         </div>
     </div>

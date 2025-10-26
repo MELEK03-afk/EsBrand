@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --host",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview"
@@ -25,7 +25,8 @@
     "react-spinner": "^0.2.7",
     "react-spinners": "^0.17.0",
     "react-toastify": "^11.0.5",
-    "reactjs-popup": "^2.0.6"
+    "reactjs-popup": "^2.0.6",
+    "sonner": "^2.0.7"
   },
   "devDependencies": {
     "@eslint/js": "^9.29.0",

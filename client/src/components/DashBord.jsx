@@ -48,9 +48,7 @@ const DashBord = () => {
           }
       });
       setUsers(res.data);      
-      setTimeout(() => {
-        setLoading(false);
-      }, 4000);
+
     } catch (error) {
       console.log(error);
       if (error.response?.status !== 200) {
@@ -96,6 +94,7 @@ const DashBord = () => {
         <h2>Dashbord</h2>
       </div>
       <div className="DashBord-Menu">
+
         <div className='DashBord-Menu-1'>
           <div className='dashbord-menu-header'>
             <h3>Orders</h3>
@@ -112,25 +111,26 @@ const DashBord = () => {
           </div>
         </div>
 
-          <div className='DashBord-Menu-1'>
-            <div className='dashbord-menu-header'>
-              <h3>Categories</h3>
-              <span className='icon-circle'>
-                <LayoutGrid  size={28} color="#4f8cff" />
-              </span>
-            </div>
-            <h1>{Categorys.length}</h1>
-            <Link onClick={()=>handleMenuSelect('Categories')} 
-            style={{textDecoration:"none",width:"100%",backgroundColor:"wheat"}} 
-            to='/ManagementDashboard/CategroiesBord'>  
-              <div className='dashbord-menu-link'>
-            <span className='icon-arrow'>
-              <SquareArrowRight size={20} color="#4f8cff" />
+        <div className='DashBord-Menu-1'>
+          <div className='dashbord-menu-header'>
+            <h3>Categories</h3>
+            <span className='icon-circle'>
+              <LayoutGrid  size={28} color="#4f8cff" />
             </span>
-            <h5>Go to component</h5>
-              </div>
-            </Link>
           </div>
+          <h1>{Categorys.length}</h1>
+          <Link onClick={()=>handleMenuSelect('Categories')} 
+          style={{textDecoration:"none",width:"100%",backgroundColor:"wheat"}} 
+          to='/ManagementDashboard/CategroiesBord'>  
+            <div className='dashbord-menu-link'>
+          <span className='icon-arrow'>
+            <SquareArrowRight size={20} color="#4f8cff" />
+          </span>
+          <h5>Go to component</h5>
+            </div>
+          </Link>
+        </div>
+
         <div className='DashBord-Menu-1'>
           <div className='dashbord-menu-header'>
             <h3>Products</h3>
@@ -150,6 +150,47 @@ const DashBord = () => {
           </div>
             </Link>
         </div>
+
+        <div id="MobileOnly" className='DashBord-Menu-1'>
+          <div className='dashbord-menu-header'>
+            <h3>Users</h3>
+            <span className='icon-circle'>
+              <Package size={28} color="#4f8cff" />
+            </span>
+          </div>
+          <h1>{Products.length}</h1>
+          <Link onClick={()=>handleMenuSelect('user')} 
+            style={{textDecoration:"none",width:"100%",backgroundColor:"wheat"}} 
+            to='/ManagementDashboard/user'>  
+          <div className='dashbord-menu-link'>
+              <span className='icon-arrow'>
+                <SquareArrowRight size={20} color="#4f8cff" />
+              </span>
+              <h5>Go to component</h5>
+          </div>
+            </Link>
+        </div>
+
+        <div id="MobileOnly" className='DashBord-Menu-1'>
+          <div className='dashbord-menu-header'>
+            <h3>Sales Reports</h3>
+            <span className='icon-circle'>
+              <Package size={28} color="#4f8cff" />
+            </span>
+          </div>
+          <h1>{Products.length}</h1>
+          <Link onClick={()=>handleMenuSelect('AllProducts')} 
+            style={{textDecoration:"none",width:"100%",backgroundColor:"wheat"}} 
+            to='/ManagementDashboard/AllProducts'>  
+          <div className='dashbord-menu-link'>
+              <span className='icon-arrow'>
+                <SquareArrowRight size={20} color="#4f8cff" />
+              </span>
+              <h5>Go to component</h5>
+          </div>
+            </Link>
+        </div>
+        
         <div className='DashBord-Menu-1'>
           <div className='dashbord-menu-header'>
             <h3>Add New Products</h3>

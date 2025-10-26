@@ -1,6 +1,7 @@
 import React,{useState,useEffect,useMemo} from 'react'
-import { Menu,Search,UserRound ,X ,LogOut,User,Mail, CreditCard, Truck, MapPin,ShoppingBag,ShieldUser,Edit2,Trash2 ,Dot,MoveRight,MoveLeft   } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import * as LucideIcons from "lucide-react";
+import { Menu,Search,UserRound,Smartphone,Footprints ,Shirt ,X ,LogOut,User,Mail, CreditCard, ArrowLeft ,Truck, MapPin,ShoppingBag,ShieldUser,Edit2,Trash2 ,Dot,MoveRight,MoveLeft   } from 'lucide-react';
+import { Link, useNavigate,useLocation  } from 'react-router-dom';
 import toast, { Toaster } from 'react-hot-toast';
 import { motion, AnimatePresence } from "framer-motion";
 import EsL from '../images/Es4.png'
@@ -12,7 +13,13 @@ function HeaderBar({showBag,setShowBag}   ) {
   const [showMenu,setShowMenu]=useState(false)
   const [showSearch,setShowSearch]=useState(false)
   const [genre,setGenre]=useState('men')
-  const user=JSON.parse(localStorage.getItem('user'))
+  const [user, setUser] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem('user')) || null
+    } catch {
+      return null
+    }
+  })
   const [ShowUser,setShowUser] =useState(false)
   const [HoverCat,setHoverCat] =useState(null)
   const [HoverSub,setHoverSub] =useState(null)
@@ -25,14 +32,26 @@ function HeaderBar({showBag,setShowBag}   ) {
   const [selectedSize, setSelectedSize] = useState('');
   const [selectedColor, setSelectedColor] = useState('');
   const [image, setImage] = useState('');
+  const [SearchGenre, setSearchGenre] = useState('Tous');
   const [name, setName] = useState('');
   const [images, setImages] = useState([]);
   const [colors, setColors] = useState([]);
   const [showBagEdit, setShowBagEdit] = useState(false)
   const [searchInput, setSearchInput] = useState('')
+  const [Products, setProducts] = useState([]);
+  const [AllProducts, setAllProducts] = useState([]);
+  const [SearchMobile, setSearchMobile] = useState(false); // LIFTED STATE
+  const location = useLocation();
   const navigate = useNavigate();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const icons = {
+    Shirt,
+    ShoppingBag,
+    Footprints,
+    Smartphone
+    // add more icons here
+  };
   // Calculate total using useMemo
   const total = useMemo(() => {
     if (!productCart?.cart?.products) return 0;
@@ -40,10 +59,24 @@ function HeaderBar({showBag,setShowBag}   ) {
       return sum + (product.productId?.price * product.quantity);
     }, 0);
   }, [productCart]);
-
+  const getProducts = async () => {
+    try {
+      const res = await axios.get("http://192.168.1.17:2025/api/GetProduct");
+      setAllProducts(res.data)
+       const featuredProducts = res.data
+        .filter(p => p.isFeatured)
+        .slice(0, 4);
+       setProducts(featuredProducts);
+      
+    } catch (error) {
+      console.log(error);
+      
+      toast.error(error.response?.data?.message || "Failed to fetch products");
+    }
+  };
   const getCategory = async () => {  
     try {
-      const res = await axios.get("http://localhost:2025/api/Admin/Get-category",{
+      const res = await axios.get("http://192.168.1.17:2025/api/Admin/Get-category",{
       });
       setCategories(res.data);            
     } catch (error) {
@@ -61,7 +94,7 @@ function HeaderBar({showBag,setShowBag}   ) {
   const getProductCart = async () => {  
     if (!user?.id) return;
     try {
-      const res = await axios.get(`http://localhost:2025/api/GetProductCart/${user.id}`, {
+      const res = await axios.get(`http://192.168.1.17:2025/api/GetProductCart/${user.id}`, {
         headers: {
           'Authorization': `Bearer ${user.token}`,
           'Content-Type': 'application/json'
@@ -75,7 +108,7 @@ function HeaderBar({showBag,setShowBag}   ) {
   };
   const getSubCategory = async (id) => {  
     try {
-      const res = await axios.get(`http://localhost:2025/api/Admin/Get-Subcategory/${id}`);
+      const res = await axios.get(`http://192.168.1.17:2025/api/Admin/Get-Subcategory/${id}`);
       setSubcategories(res.data);     
        
     } catch (error) {
@@ -88,7 +121,7 @@ function HeaderBar({showBag,setShowBag}   ) {
   const GetPById = async (id) => {  
     
     try {
-      const res = await axios.get(`http://localhost:2025/api/Admin/Get-product/${id}`);     
+      const res = await axios.get(`http://192.168.1.17:2025/api/Admin/Get-product/${id}`);     
       setName(res.data.name)
       setProduct(res.data)  
       // console.log('Product data:', res.data);
@@ -124,7 +157,7 @@ function HeaderBar({showBag,setShowBag}   ) {
     let normalizedPath = imagePath.replace(/\\/g, '/');
     return normalizedPath.startsWith('http')
       ? normalizedPath
-      : `http://localhost:2025/${normalizedPath.replace(/^\//, '')}`;
+      : `http://192.168.1.17:2025/${normalizedPath.replace(/^\//, '')}`;
   };
 
   const getImageByColor = (product, color, index = 0) => {
@@ -160,10 +193,12 @@ function HeaderBar({showBag,setShowBag}   ) {
   useEffect(() => {
     getProductCart();
   }, [showBag, user?.id]);
-
+  useEffect(() => {
+    getProducts()
+  }, []);
   // Handle body overflow when shopping bag is open
   useEffect(() => {
-    if (showBag || showBagEdit || showMenu || showSearch) {
+    if (showBag || showBagEdit || showMenu || showSearch || SearchMobile) {
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = 'auto';
@@ -173,7 +208,7 @@ function HeaderBar({showBag,setShowBag}   ) {
     return () => {
       document.body.style.overflow = 'auto';
     };
-  }, [showBag, showBagEdit,showMenu,showSearch]);
+  }, [showBag, showBagEdit,showMenu,showSearch,SearchMobile]);
 
 
   useEffect(() => {
@@ -229,7 +264,7 @@ function HeaderBar({showBag,setShowBag}   ) {
   const DeletePrdCart = async (productToDelete) => {
     if (!user?.id) return;
     try {
-      const res = await axios.delete('http://localhost:2025/api/DeletePrdCart', {
+      const res = await axios.delete('http://192.168.1.17:2025/api/DeletePrdCart', {
         data: {
           userId: user.id,
           productId: productToDelete.productId._id,
@@ -252,7 +287,7 @@ function HeaderBar({showBag,setShowBag}   ) {
   const updateCartItem = async () => {
     if (!user?.id) return;
     try {
-      const res = await axios.put('http://localhost:2025/api/cart-update', {
+      const res = await axios.put('http://192.168.1.17:2025/api/cart-update', {
           userId: user.id,
           productId: product._id,
           size: selectedSize,
@@ -284,40 +319,101 @@ function HeaderBar({showBag,setShowBag}   ) {
           Livraison gratuite à partir de 120 DT
         </div>
       </div> */}
-      <div className="InfoBar">
-        <div className="scrolling-wrapper">
-          {items.map((item, i) => (
-            <div className="scrolling-item" key={i}>
-              {item.icon} {item.text}
-            </div>
-          ))}
-          {/* duplicate items for infinite loop */}
-          {items.map((item, i) => (
-            <div className="scrolling-item" key={`dup-${i}`}>
-              {item.icon} {item.text}
-            </div>
-          ))}
+      {/* {location.pathname === "/" && (
+        <div className="InfoBar">
+          <div className="scrolling-wrapper">
+            {items.map((item, i) => (
+              <div className="scrolling-item" key={i}>
+                {item.icon} {item.text}
+              </div>
+            ))}
+            {items.map((item, i) => (
+              <div className="scrolling-item" key={`dup-${i}`}>
+                {item.icon} {item.text}
+              </div>
+            ))}
+          </div>
         </div>
+      )} */}
+      {showBag && (
+        <div onClick={() => {setShowBagEdit(false),setTimeout(() => {setShowBag(false);}, 400)}} className='overflow-2'>
+        </div>
+      )}
+      {showSearch && showMenu && (
+        <div className='overflow'>
+        </div>
+      )}
+      {location.pathname === "/" && (
+        <div className='SearchMobile' onClick={() => setSearchMobile(true)}>
+          <Search style={{ cursor: "pointer", position: "absolute", left: "2%" }} />
+          <input type="text" placeholder="Search..." />
+        </div>
+      )}
+      {SearchMobile && (
+        <div className='SearchMobileComp'>
+            <div className='FetchMobile'>
+              <Search style={{cursor:"pointer",position:"absolute",left:"2%"}}/>
+              <input id="FetchMobile" type="text" placeholder="Search..." />
+            </div>
+            <X style={{position:'absolute',right:"10px",cursor:"pointer"}} onClick={()=>setSearchMobile(false)} size={20}/>
+            <div className='SearchMobileCompGenre'>
+              <h4 onClick={()=>setSearchGenre('Tous')} style={{backgroundColor:SearchGenre === 'Tous'?'black':"white",color:SearchGenre === 'Tous'?'white':"black"}}>Tous</h4>
+              <h4 onClick={()=>setSearchGenre('Femme')} style={{backgroundColor:SearchGenre === 'Femme'?'black':"white",color:SearchGenre === 'Femme'?'white':"black"}}>Femme</h4>
+              <h4 onClick={()=>setSearchGenre('Homme')} style={{backgroundColor:SearchGenre === 'Homme'?'black':"white",color:SearchGenre === 'Homme'?'white':"black"}}>Homme</h4>
+            </div>
+            <h1>You might be interested in</h1>
+
+            <div className='SearchMobileProductS'>
+              {AllProducts.map((prod, index) => 
+                <div key={prod._id || index} id='FeaturedProductCard'  className='FeaturedProductCard'
+                onClick={()=>(navigate(`/PorductSelecte/${prod._id}`, {
+                state: {
+                  parentCategoryId: prod.categoryId,
+                  subcategoryId: prod.subcategoryId,
+                  genre: prod.genre,
+                }}),setSearchMobile(false))}>
+                  <img src={`http://192.168.1.17:2025/${prod.images[0]?.urls[3]}`} alt="" />
+                  <h2>{prod.name}</h2>
+                  <h3>{prod.price} TND</h3>
+
+                </div>
+              )}
+            </div>
+        </div>  
+      )}
+
+      <div className={`Search ${showSearch ? "open" : ""}`}>
+        <X 
+          style={{
+            color: "black",
+            position: "absolute",
+            right: "20px",
+            cursor: "pointer",
+            opacity: showSearch ? 1 : 0,
+            transition: "opacity 0.3s ease"
+          }} onClick={() => setShowSearch(false)}/>
+          <div className='divshowSearch'>
+            <Search style={{color:"grey"}}/>
+          <input 
+            type="text"
+            className="SearchInput"
+            placeholder="Search For ...."
+            style={{
+              opacity: showSearch ? 1 : 0,
+              pointerEvents: showSearch ? "auto" : "none",
+              transition: "opacity 0.4s ease"
+            }}
+          />
+          </div>
+
       </div>
-        {showBag && (
-          <div onClick={() => {setShowBagEdit(false),setTimeout(() => {setShowBag(false);}, 400)}} className='overflow-2'>
-          </div>
-        )}
-        {showMenu && (
-          <div className='overflow'>
-          </div>
-        )}
-        <div className='Search' style={{minHeight:showSearch === true ?"400px":"0px"}}>
-          <X style={{color:"black",position:"absolute",right:"20px"} }/>
-          <input type="text" className="SearchInput" placeholder="Serach For ...." />
-        </div>
+
       <div   className='HeaderBar slide-down'>
         <Toaster/>
         <div className='HeaderBar-1'>
           <Menu onClick={()=>(setShowMenu(!showMenu),setShowUser(false),setShowBag(false))} size={25} strokeWidth={3} style={{color:"white",marginLeft:"1%",cursor:"pointer"}}/>
           <Link className='h1' to='/' style={{textDecoration:"none",color:"white"}}>
-          <img src={EsL} onClick={()=>(setShowMenu(false),setShowBag(false))} width={'70px'} height={'70px'} alt="" />
-          
+            <img src={EsL} onClick={()=>(setShowMenu(false),setShowBag(false))} width={'70px'} height={'70px'} alt="" />
           </Link>
           {/* <div className='recherche'>
             <input 
@@ -336,39 +432,43 @@ function HeaderBar({showBag,setShowBag}   ) {
             <Search style={{cursor:"pointer"}}/>
           </div> */}
           <div className='HeaderBar-3'> 
-            <div className="HeaderBar-4">
-              {user ? (
-                <User  onClick={()=>(setShowMenu(false),setShowUser(!ShowUser),setIsDropdownOpen(true),setShowBag(false))} style={{cursor:"pointer",color:"white"}}/> 
-              ):(
-                <Link to='/Seconnect'onClick={()=>(setShowMenu(false),setShowBag(false))}>
-                <button >Se Connect <UserRound size={15} style={{position:"relative",left:"5px",top:"2px"}}/></button>
-                </Link>
-              )}
+            <div className='HeaderIcons'>
+              <div className="HeaderBar-4">
+                {user ? (
+                  <User  onClick={()=>(setShowMenu(false),setShowUser(!ShowUser),setIsDropdownOpen(true),setShowBag(false))} style={{cursor:"pointer",color:"white"}}/> 
+                ):(
+                  <Link to='/Seconnect'onClick={()=>(setShowMenu(false),setShowBag(false))}>
+                  <button >Se Connect <UserRound size={15} style={{position:"relative",left:"5px",top:"2px"}}/></button>
+                  </Link>
+                )}
+              </div>
+              <Search className='SearchX' onClick={()=>(setShowSearch(!showSearch))} style={{color:"white",cursor:"pointer"}}/>
+              <ShoppingBag onClick={()=>(setShowMenu(false),setShowUser(false),setShowBag(!showBag))} style={{cursor:"pointer",color:"white"}}/>
+              {
+                productCart.cart?.products?.length === 0 ?(
+                  ''
+                ):(
+                  <div className='CountPCart' style={{display:!user?'none':''}} onClick={()=>(setShowMenu(false),setShowBag(!showBag))}>{productCart.cart?.products?.length}</div>
+                )
+              }  
             </div>
-            <Search onClick={()=>(setShowSearch(!showSearch))} style={{color:"white",cursor:"pointer"}}/>
-            <ShoppingBag onClick={()=>(setShowMenu(false),setShowUser(false),setShowBag(!showBag))} style={{cursor:"pointer",color:"white"}}/>
-            {
-              productCart.cart?.products?.length === 0 ?(
-                ''
-              ):(
-                <div className='CountPCart' style={{display:!user?'none':''}} onClick={()=>(setShowMenu(false),setShowBag(!showBag))}>{productCart.cart?.products?.length}</div>
-              )
-            }     
+
           </div>
         </div> 
-        <div className='MenuUser'  style={{
-              height: showMenu ? "474px" : "0px",
-              paddingBottom: showMenu ? "2%" : "0%",
-              transition: showMenu
-                ? "height 0.5s ease, padding-bottom 0.5s ease" // slow open
-                : "height 0.15s ease, padding-bottom 0.15s ease" // fast close
-            }}>
+        
+        <div className='MenuUser' style={{
+            height: showMenu ? "100vh" : "0vh",
+            paddingBottom: showMenu ? "2%" : "0%",
+            transition: showMenu
+              ? "min-height 0.5s ease, padding-bottom 0.5s ease" // slow open
+              : "min-height 0.15s ease, padding-bottom 0.15s ease" // fast close
+          }}>
           <div>
-            <X onClick={()=>setShowMenu(false)} style={{display: showMenu ?"":"none",cursor:"pointer", marginLeft:"90%"}}/>
-            <div className='MenuGenre' style={{display: showMenu ?"":"none"}}>
-              <h2 onClick={()=>setGenre('men')} style={{fontWeight: genre === 'men' ?'':'300',color: genre === "men" ?"white":'gray'}}>Men</h2>
-              <h2 onClick={()=>setGenre('women')}  style={{fontWeight: genre === 'women' ?'':'300',color: genre === "women" ?"white":'gray'}}>women</h2>
-            </div>
+          <X onClick={()=>setShowMenu(false)} style={{display: showMenu ?"":"none",cursor:"pointer", marginLeft:"90%"}}/>
+          {/* <div className='MenuGenre' style={{display: showMenu ?"":"none"}}>
+            <h2 onClick={()=>setGenre('men')} style={{fontWeight: genre === 'men' ?'':'300',color: genre === "men" ?"white":'gray'}}>Men</h2>
+            <h2 onClick={()=>setGenre('women')}  style={{fontWeight: genre === 'women' ?'':'300',color: genre === "women" ?"white":'gray'}}>women</h2>
+          </div> */}
           </div>
           <div style={{display:"flex",width:"100%"}}>
             <div className="list-1" >
@@ -381,27 +481,44 @@ function HeaderBar({showBag,setShowBag}   ) {
                     exit={{ opacity: 0, x: 30 }}
                     transition={{ duration: 0.4 }}
                   >
-                    {categories.map((category) => (
-                      <span 
-                        key={category._id} 
-                        style={{ display: showMenu === false ? "none" : "", transition: "all 0.5s" }}
-                        className="SpanList"
+                {categories.map((category) => {
+                  const iconName = typeof category.icon === 'string' ? category.icon.trim() : ''
+                  const IconComponent = LucideIcons[iconName] || LucideIcons.Dot; // fallback to Dot if invalid
+
+                  return (
+                    <span
+                      key={category._id}
+                      style={{
+                        display: showMenu === false ? "none" : "",
+                        transition: "all 0.5s",
+                      }}
+                      className="SpanList"
+                    >
+                      {HoverCat === category._id ? (
+                        <MoveRight style={{color:"#d2b285"}} />
+                      ) : (
+                        IconComponent && <IconComponent size={19}  />
+                      )}
+
+                      <h2
+                        style={{
+                          fontWeight: category._id === categorySelected ? "700" : "",
+                        }}
+                        onMouseEnter={() => setHoverCat(category._id)}
+                        onMouseLeave={() => setHoverCat(null)}
+                        onClick={() => {
+                          getSubCategory(category._id);
+                          setCategorySelectedName(category.name);
+                          setCategorySelected(category._id);
+                        }}
                       >
-                        {HoverCat === category._id ? <MoveRight /> : <Dot />}
-                        <h2
-                          style={{ fontWeight: category._id === categorySelected ? "700" : "" }}
-                          onMouseEnter={() => setHoverCat(category._id)}
-                          onMouseLeave={() => setHoverCat(null)}
-                          onClick={() => {
-                            getSubCategory(category._id);
-                            setCategorySelectedName(category.name);
-                            setCategorySelected(category._id);
-                          }}
-                        >
-                          {category.name}
-                        </h2>
-                      </span>
-                    ))}
+                        {category.name}
+                      </h2>
+                    </span>
+                  );
+                })}
+
+
                   </motion.div>
                 </AnimatePresence>
               ) : (
@@ -466,20 +583,20 @@ function HeaderBar({showBag,setShowBag}   ) {
             </div>
           </div>
         </div>
-        <div className='ShoppingBag' style={{width: showBag === true ?'29%':"0",overflow: "hidden",
+       
+        <div id='ShoppingBag' className={`ShoppingBag ${showBag ? 'open' : ''}`} style={{overflow: "hidden",
               transition: showBag
                 ? "width 0.5s ease, padding-bottom 0.5s ease" // slow open
                 : "width 0.15s ease, padding-bottom 0.15s ease" // fast close
             }}>
           {productCart.cart?.products?.length === 0 ?(          
             <div>
-              <X onClick={()=>setShowBag(false)} style={{display: showBag ?"":"none",cursor:"pointer", marginLeft:"90%"}}/>
+              <X className='XMobileBag' onClick={()=>setShowBag(false)} style={{display: showBag ?"":"none",cursor:"pointer", marginLeft:"90%"}}/>
+              <ArrowLeft  onClick={()=>setShowBag(false)} style={{display: showBag ?"":"none",cursor:"pointer", marginLeft:"2%"}}/>
               <h3 style={{textAlign:"center",position:"relative",top:"-10px",display: showBag ?"":"none"}}>ShoppingBag</h3>
               
               {/* Empty Cart Message */}
-              <div className='EmptyBag' style={{
-                display: showBag ? "flex" : "none",
-              }}>
+              <div className='EmptyBag' style={{ display: showBag ? "flex" : "none",}}>
                 <ShoppingBag size={60} style={{color: "#ccc", marginBottom: "15px"}}/>
                 <h4 style={{color: "#666", marginBottom: "10px", fontSize: "18px"}}>Your cart is empty</h4>
                 <p style={{color: "#999", fontSize: "14px", lineHeight: "1.4"}}>
@@ -489,7 +606,20 @@ function HeaderBar({showBag,setShowBag}   ) {
                 <Link to="/" onClick={() => setShowBag(false)}>
                   <button  onClick={()=>setShowMenu(true)}>Start Shopping</button>
                 </Link>
-            </div>
+              </div>
+              <div className='MobileBagProduct'>
+                <h1>you might be interested in</h1>
+                <div id='FeaturedProductCards' className='FeaturedProductCards'>
+                  {Products.slice(0, 4).map((prod, index) => 
+                  <div key={prod._id || index} id='FeaturedProductCard' className='FeaturedProductCard'>
+                    <img src={`http://192.168.1.17:2025/${prod.images[0]?.urls[3]}`} alt="" />
+                    <h2>{prod.name}</h2>
+                    <h3>{prod.price} TND</h3>
+
+                  </div>
+                  )}
+                </div>
+              </div>
             </div>
           ):(
             <div className='PdSb'>
@@ -526,15 +656,18 @@ function HeaderBar({showBag,setShowBag}   ) {
                 );
               })}
               </div>
-              <div className='total' style={{display: showBag ?"":"none"}}>
-                <h2>Total</h2>
-                <h2>{total} TND</h2>
+              <div className='detailsTotal'>
+                <div className='total' style={{display: showBag ?"":"none"}}>
+                  <h2>Total</h2>
+                  <h2>{total} TND</h2>
+                </div>
+                <button style={{display: showBag ?"":"none"}} className='PdSb-bt' onClick={()=>navigate('/Commande')}>Passer Commande</button>
               </div>
-              <button style={{display: showBag ?"":"none"}} className='PdSb-bt' onClick={()=>navigate('/Commande')}>Passer Commande</button>
+
             </div>
           )}
         </div>
-        <div className='ShoppingBag-Edit' style={{width: showBagEdit === true ?'29%':"0",overflow: "hidden",
+        <div className={`ShoppingBag-Edit ${showBagEdit ? 'open' : ''}`} style={{overflow: "hidden",
               transition: showBag
                 ? "width 0.5s ease, padding-bottom 0.5s ease" // slow open
                 : "width 0.15s ease, padding-bottom 0.15s ease" // fast close

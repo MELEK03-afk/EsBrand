@@ -1,6 +1,9 @@
-import { useState } from "react";
-import {Link} from 'react-router-dom'
+import React,{useState,useEffect,useMemo} from 'react'
+import { Link ,useNavigate} from 'react-router-dom'
 import {ShoppingBag,Truck,ChevronDown,ChevronUp   } from 'lucide-react'
+import axios from 'axios'
+import toast, { Toaster } from 'react-hot-toast';
+
 const CommandeComp = () => {
 const [value, setValue] = useState(""); // you can remove this if unused
 const [nom, setNom] = useState("");
@@ -11,6 +14,7 @@ const [rue, setRue] = useState("");
 const [ville, setVille] = useState(""); // ✅ fixed lowercase setter
 const [complement, setComplement] = useState(""); // ✅ added
 const [postal, setPostal] = useState(""); // ✅ added
+const navigate=useNavigate()
 
 const provinces = [
   "Ariana",
@@ -40,21 +44,84 @@ const provinces = [
 ];
 
 const [open, setOpen] = useState(false);
-const [search, setSearch] = useState("");
+const [province, setprovince] = useState("");
 const [selected, setSelected] = useState("Province");
-
+const [productCart, setProductCart] = useState([]);
+const [user, setUser] = useState(() => {
+  try {
+    return JSON.parse(localStorage.getItem('user')) || null
+  } catch {
+    return null
+  }
+})
 const filteredProvinces = provinces.filter((prov) =>
-  prov.toLowerCase().includes(search.toLowerCase())
+  prov.toLowerCase().includes(province.toLowerCase())
 );
 
 const handleSelect = (prov) => {
   setSelected(prov);
   setOpen(false);
-  setSearch("");
+  setprovince(prov);
 };
+const getProductCart = async () => {  
+  if (!user?.id) return;
+  try {
+    const res = await axios.get(`http://192.168.1.17:2025/api/GetProductCart/${user.id}`, {
+      headers: {
+        'Authorization': `Bearer ${user.token}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    // Normalize: keep only the array of products
+    const products = res.data?.cart?.products || [];
+    setProductCart(products);
+  } catch (error) {
+    console.log(error);
+  }
+};
+const handleOrder = async () => {
+  console.log(user.id);
+  
+  try {
+    const res = await axios.post(
+      `http://192.168.1.17:2025/api/create-order/${user.id}`,
+      {
+        nom,
+        prenom,
+        email,
+        telephone,
+        rue,
+        complement,
+        ville,
+        province,
+        postal
+      },
+      {
+        headers: { Authorization: `Bearer ${user.token}` }
+      }
+    );
+
+    toast.success('Commande envoyée avec succès');
+    navigate('/order-confirmation', { state: { order: res.data.order } });
+  } catch (err) {
+    console.error(err);
+    toast.error(err.response?.data?.message || 'Erreur lors de la commande');
+  }
+};
+
+
+const total = useMemo(() => {
+  return productCart.reduce((acc, item) => acc + (item.productId?.price || 0) * item.quantity, 0);
+}, [productCart]);
+
+  useEffect(() => {
+    getProductCart();
+  }, []);
 
   return (
 <div className="Commande">
+  <Toaster/>
   <Link className="h1" to="/" style={{ textDecoration: "none", color: "black" }}>
     <h1>Finaliser votre commande</h1>
   </Link>
@@ -181,8 +248,8 @@ const handleSelect = (prov) => {
                 <input
                   type="text"
                   placeholder="Cherche ici"
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
+                  value={province}
+                  onChange={(e) => setprovince(e.target.value)}
                 />
                 {filteredProvinces.map((prov, i) => (
                   <div
@@ -211,15 +278,46 @@ const handleSelect = (prov) => {
           </div>
         </div>
       </div>
+      {/* Détails des produits dans le panier */}
+      <div className="cart-details" style={{ marginTop: "40px" }}>
+        <h3>Produits dans votre panier</h3>
+        <div className="cart-list">
+          {productCart.map((item, index) => (
+            <div
+              key={index}
+              className="cart-item"
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                borderBottom: "1px solid #ddd",
+                padding: "10px 0",
+              }}
+            >
+              <div style={{ flex: 1 }}>
+                <p><strong>Nom :</strong> {item.productId?.name}</p>
+                <p><strong>Taille :</strong> {item.size}</p>
+                <p><strong>Couleur :</strong> {item.color}</p>
+                <p><strong>Quantité :</strong> {item.quantity}</p>
+              </div>
+              <div style={{ textAlign: "right", minWidth: "100px" }}>
+                <p><strong>{item.productId?.price} DT</strong></p>
+              </div>
+            </div>
+          ))}
+        </div>   
+      </div>
     </div>
 
+    
+    
+
     {/* RÉSUMÉ ACHAT */}
-    <div className="facturation-2">
-      <h3>Résumé de l’achat (2)</h3>
+    <div id='facturation-2' className="facturation-2">
+      <h3>Résumé de l’achat ({productCart.length})</h3>
       <div className="Continuer">
-        <h4>Total 200 DT</h4>
+      <h4>Total {total.toFixed(2)} DT</h4>
         <div className="btC">
-          <button className="btContinuer">Continuer</button>
+          <button onClick={handleOrder} className="btContinuer">  Continuer la commande</button>
         </div>
       </div>
     </div>

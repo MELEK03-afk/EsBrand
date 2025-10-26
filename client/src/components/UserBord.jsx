@@ -18,7 +18,7 @@ const UserBord = () => {
     const getUser = async () => {  
     try {
       // TODO: Replace hardcoded API URL with environment variable for production
-      const res = await axios.get("http://localhost:2025/api/Owner/getUser  ",{
+      const res = await axios.get("http://192.168.1.17:2025/api/Owner/getUser  ",{
         headers: {
           'Authorization': `Bearer ${user.token}`
           }
@@ -42,7 +42,7 @@ const UserBord = () => {
           return toast.error('select new role or close')
         }
       // TODO: Replace hardcoded API URL with environment variable for production
-      const res = await axios.put(`http://localhost:2025/api/Owner/Update-User/${id}` ,{
+      const res = await axios.put(`http://192.168.1.17:2025/api/Owner/Update-User/${id}` ,{
         role
       },{
         headers: {
@@ -89,7 +89,7 @@ const UserBord = () => {
   const confirmDelete = async (id, toastId) => {
     try {
       // TODO: Replace hardcoded API URL with environment variable for production
-      const res = await axios.delete(`http://localhost:2025/api/Owner/DeleteUser/${id}`,{
+      const res = await axios.delete(`http://192.168.1.17:2025/api/Owner/DeleteUser/${id}`,{
         headers: {
           'Authorization': `Bearer ${user.token}`
           }
@@ -160,9 +160,8 @@ const UserBord = () => {
             <Search style={{cursor:"pointer",color:"black"}}/>
         </div>
       </div>
-      {loading ? (
-          <ScaleLoader style={{position:"absolute",top:"50%",marginLeft:"40%",fontSize:"xx-large"}} color="white" />
-      ) :( 
+
+        <div>        
         <div className='div-tab'>
           <table border={0}>
             <thead>
@@ -178,7 +177,22 @@ const UserBord = () => {
             </tbody>
           </table>
         </div>
-      )}
+        <div className="PhoneDisplay">
+          {filteredUsers.map((user) => (
+            <div key={user._id} className="UserCard">
+              <p><strong style={{color:"#70787fff"}}>Email:</strong> <br /> {user.email}</p>
+              <div style={{width:"60%",display:"flex",justifyContent:'space-between'}}>
+                <p><strong style={{color:"#70787fff"}}>Role:</strong> <br /> {user.role}</p>
+                <p><strong style={{color:"#70787fff"}}>Phone:</strong> <br /> {user.phoneNumber}</p>
+              </div>
+              <div className="actions">
+                <Trash size={20} onClick={() => deleteUser(user._id)} />
+                <Pen size={20} onClick={() => { setEditMode(user._id); setRole(user.role); }} />
+              </div>
+            </div>
+          ))}
+        </div>
+        </div>
     </div>
   )
 }

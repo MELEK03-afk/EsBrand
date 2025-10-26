@@ -8,6 +8,7 @@ const CategroiesBord = () => {
   const [images, setImages] = useState([]);
   const [imagePreviews, setImagePreviews] = useState([]);
   const [name, setName] = useState('');
+  const [icon, setIcon] = useState('');
   const [subCategoryName, setSubCategoryName] = useState('');
   const [categoryId,setIdCategory]=useState('')
   const [Categorys, setCategorys] = useState([]);
@@ -15,9 +16,10 @@ const CategroiesBord = () => {
   const [loading, setLoading] = useState(true); 
   const user=JSON.parse(localStorage.getItem("user"))
   const [showModal,SetShowModal]=useState(false)
+  const [showModals,SetShowModals]=useState(false)
   const [showSub,SetShowSub]=useState(false)
   const fileInputRef = useRef(null); 
-const [genre, setGenre] = useState('');
+  const [genre, setGenre] = useState('');
 
 
 
@@ -37,11 +39,12 @@ const [genre, setGenre] = useState('');
     }
     const formadata= new FormData()
     formadata.append('name',name)
+    formadata.append('icon',icon)
     images.forEach((image)=>{
       formadata.append('images',image)
     })
     try {
-      const res= await axios.post('http://localhost:2025/api/Admin/Add-category',
+      const res= await axios.post('http://192.168.1.17:2025/api/Admin/Add-category',
         formadata,
         {
           headers: {
@@ -81,7 +84,7 @@ const [genre, setGenre] = useState('');
       })
       }
     try {
-      const res= await axios.post('http://localhost:2025/api/Admin/Add-CategorySub',
+      const res= await axios.post('http://192.168.1.17:2025/api/Admin/Add-CategorySub',
         formadata,
         {
           headers: {
@@ -108,7 +111,7 @@ const [genre, setGenre] = useState('');
   }
     const getCategory = async () => {  
     try {
-      const res = await axios.get("http://localhost:2025/api/Admin/Get-category",{
+      const res = await axios.get("http://192.168.1.17:2025/api/Admin/Get-category",{
         headers: {
           'Authorization': `Bearer ${user.token}`
           }
@@ -125,7 +128,7 @@ const [genre, setGenre] = useState('');
   };
     const getSubCategory = async (id) => {  
     try {
-      const res = await axios.get(`http://localhost:2025/api/Admin/Get-Subcategory/${id}`,{
+      const res = await axios.get(`http://192.168.1.17:2025/api/Admin/Get-Subcategory/${id}`,{
         headers: {
           'Authorization': `Bearer ${user.token}`
           }
@@ -168,7 +171,7 @@ const [genre, setGenre] = useState('');
   const confirmDelete = async (id, toastId) => {
     try {
       // TODO: Replace hardcoded API URL with environment variable for production
-      const res = await axios.delete(`http://localhost:2025/api/Admin/Delete-SubCategory/${id}`,{
+      const res = await axios.delete(`http://192.168.1.17:2025/api/Admin/Delete-SubCategory/${id}`,{
         headers: {
           'Authorization': `Bearer ${user.token}`
           }
@@ -185,14 +188,15 @@ const [genre, setGenre] = useState('');
       }
     }
   };
-  
   return (
     <div className='CategroiesDashBord'>
       <Toaster/>
+
       {showModal ?(
         <div className='Modal'>
-        <h2>Add New Category</h2>
+          <h2>Add New Category</h2>
           <input type="text" onChange={(e)=>setName(e.target.value)} placeholder='Category Name'/>
+          <input type="text"  onChange={(e)=>setIcon(e.target.value)} placeholder='Icon'/>
           <div>
             <button type="button" className='ChooseimgCategor' onClick={triggerFileSelect} style={{ marginBottom: '10px' }}>
               Choose Images
@@ -213,7 +217,7 @@ const [genre, setGenre] = useState('');
               </div>
             )}
           </div> 
-          <div style={{display:"flex",width:"100%",justifyContent:"flex-end"}}>
+          <div style={{display:"flex",justifyContent:"space-around",width:"100%",marginTop:"4%"}}>
             <button className='AddCancel' onClick={()=>SetShowModal(false)}>Cancel</button>
             <button className='AddCancel'onClick={AddCategory} style={{backgroundColor:"green"}}>Add</button>
           </div>

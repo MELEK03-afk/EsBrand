@@ -20,7 +20,7 @@ import Cart from "../../models/Cart.js"
 
 
   export const AddCategory = async (req,res) => {
-      const {name,slug,images} = req.body
+      const {name,slug,images,icon} = req.body
       if (req.user.role !== "Admin" && req.user.role !== "Owner") {
               return res.status(500).json({message : "You don't have access to do that"})
       }
@@ -33,7 +33,8 @@ import Cart from "../../models/Cart.js"
               return res.status(400).json({message : 'Category Name existe'})
           }
           const imagePaths = req.files?.map(file=>file.path)
-          const category = new Category({name,slug,images:imagePaths})
+          const normalizedIcon = typeof icon === 'string' ? icon.trim() : undefined
+          const category = new Category({name,icon: normalizedIcon,slug,images:imagePaths})
           await category.save()
           return res.status(200).json({ message : 'Field Created successfully'  ,category})
       } catch (error) {
@@ -121,7 +122,19 @@ import Cart from "../../models/Cart.js"
           return res.status(404).json({Message:"Internal server error",error})
       }
   }
-
+  export const deleteProduct= async (req , res) => {
+      if (req.user.role !== "Admin" && req.user.role !== "Owner") {
+          return res.status(500).json({message : "You don't have access to do that"})
+      }
+      const { id } = req.params
+      try {
+          await Product.deleteOne({_id : id})
+          return res.status(200).json({message : 'Product deleted'})
+      } catch (error) {
+          console.log(error)
+          res.status(500).json({message : 'Internal server error'})
+      }
+  }
 
   export const getProductById = async(req,res)=>{    
       const {id}=req.params

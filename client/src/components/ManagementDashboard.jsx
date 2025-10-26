@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { AlignStartVertical,UsersRound,ShoppingCart,Folders,Package,PackagePlus ,MessageCircleWarning  } from 'lucide-react';
+import { AlignStartVertical,UsersRound,BarChart3,Users,PlusCircle,LayoutGrid,Folder,ShoppingCart,Folders,X,Package,PackagePlus,Menu ,MessageCircleWarning  } from 'lucide-react';
 import { Link ,Outlet, useLocation } from 'react-router-dom';
 import DashBord from './DashBord';
 import UserBord from './UserBord';
@@ -9,7 +9,7 @@ const   ManagementDashboard = () => {
   const [selecteMenu, setSelecteMenu] = useState(() => localStorage.getItem('selecteMenu') || 'Dashbord');
   const location = useLocation();
   const [loading, setLoading] = useState(true); // State for loading
-
+  const[showMenu,setshowMenu]=useState(false)
   const handleMenuSelect = (menu) => {
     setSelecteMenu(menu);
     localStorage.setItem('selecteMenu', menu);
@@ -47,10 +47,29 @@ const   ManagementDashboard = () => {
        
         <div className='ManagementDashboard-1'>
           <div className='h2Dash'>
-            <Link style={{textDecoration:"none",cursor:"pointer"}} to='/'>
+            {showMenu == true ?(
+              <X onClick={()=>setshowMenu(!showMenu)}/>
+            ):(
+            <Menu onClick={()=>setshowMenu(!showMenu)}  style={{ cursor: "pointer"}}/>
+            )}
+            <Link style={{textDecoration:"none",cursor:"pointer"}} >
               <h2>Es</h2>
             </Link>
           </div>
+          <div className='MenuDashbordPhone' style={{left: showMenu === true?'0%':'-90%'}}>
+            <h3>Menu</h3>
+            <div onClick={()=>setshowMenu(!showMenu)} className="LienDash"><LayoutGrid size={20} /> Dashboard</div>
+            <div onClick={()=>setshowMenu(!showMenu)} className="LienDash"><Users size={20} /> Users</div>
+            <div onClick={()=>setshowMenu(!showMenu)} className="LienDash"><ShoppingCart size={20} /> Orders</div>
+            <div onClick={()=>setshowMenu(!showMenu)} className="LienDash"><Folder size={20} /> Categories</div>
+            <div onClick={()=>setshowMenu(!showMenu)} className="LienDash"><Package size={20} /> All Products</div>
+            <div onClick={()=>setshowMenu(!showMenu)} className="LienDash"><PlusCircle size={20} /> Add New Product</div>
+            <div onClick={()=>setshowMenu(!showMenu)} className="LienDash"><BarChart3 size={20} /> Sales Reports</div>
+          </div>
+          {showMenu && (
+            <div onClick={() => setshowMenu(false)} className='overflowPhone'>
+            </div>
+          )}
           <div className='MenuDashbord'>
             <h4>Menu</h4>
             <div className='h2Dash' >

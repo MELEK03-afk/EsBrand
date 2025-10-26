@@ -2,15 +2,14 @@ import React, { useState, useEffect } from 'react'
 import ChangeComp from './ChangeComp'
 import product from '../images/capuche.png'
 import { Instagram,Shirt,X ,Smartphone,CircleCheckBig ,Search,Bolt,BookOpen,Trophy,Mail,MapPin,Phone,Clock ,ArrowRight} from 'lucide-react';
-import product2 from '../images/product-1.jpg'
-import wtshirt from '../images/wtshirt-2.png'
-import tshirtmanches from '../images/tshirt-manches-2.png'
-import baskets from '../images/baskets-10.png'
-import Accessories from '../images/Accessories.jpg'
-import Hoodies from '../images/Hoodies.jpg'
-import product5 from '../images/ES2.png'
+import product2 from '../images/product-32-0.png'
+import Accessories from '../images/stoush.jpg'
+import veste from '../images/vetment/product-28-3.jpg.png'
+import pontalon from '../images/vetment/pontalon-6-0.png'
+import product5 from '../images/vetment/product-30-1.jpg.png'
 import { Link, useNavigate } from 'react-router-dom';
 import toast,{Toaster}  from 'react-hot-toast'
+
 import axios from 'axios'
 
 const HomeComp = () => {
@@ -52,7 +51,7 @@ const sendMail = async () => {
   
   // API call
   try {
-    const res = await axios.post("http://localhost:2025/api/Contactez-nous", {
+    const res = await axios.post("http://192.168.1.17:2025/api/Contactez-nous", {
       name,
       subject,
       email,
@@ -76,7 +75,7 @@ const sendMail = async () => {
   }
   const getProducts = async () => {
     try {
-      const res = await axios.get("http://localhost:2025/api/GetProduct");
+      const res = await axios.get("http://192.168.1.17:2025/api/GetProduct");
        const featuredProducts = res.data
         .filter(p => p.isFeatured)
         .slice(0, 4);
@@ -100,7 +99,7 @@ const sendMail = async () => {
 
     setIsSubscribing(true)
     try {
-      const res = await axios.post('http://localhost:2025/api/Subscribe', {
+      const res = await axios.post('http://192.168.1.17:2025/api/Subscribe', {
         email,
       })
       
@@ -121,7 +120,7 @@ const sendMail = async () => {
   };
 
   const getCardWidth = (index) => {
-    return selectedCard === index ? "40%" : "15%";
+    return selectedCard === index ? "36%" : "15%";
   };
   useEffect(() => {
     if (showcontact) {
@@ -153,173 +152,104 @@ const sendMail = async () => {
           </div>
         </div>
       )}
+      
       <ChangeComp/>
       <div className="homediv-0">
-        {/* <div 
-          className="selectCard" 
-          style={{
-            width: getCardWidth(0),
-            cursor: "pointer", 
-            transition: "width 0.6s ease"
-          }}
-          onMouseEnter={() => handleCardClick(0)}
-          onMouseLeave={() => handleCardClick(null)}
-        >
-          <img src={Hoodies} style={{objectFit:'cover',width:"100%",borderRadius:"15px"}} alt="" />
-        </div>
-        <div 
-          className="selectCard" 
-          style={{
-            width: getCardWidth(1),
-            cursor: "pointer", 
-            transition: "width 0.6s ease"
-          }}
-          onMouseEnter={() => handleCardClick(1)}
-          onMouseLeave={() => handleCardClick(null)}
-        >
-          <img src={baskets} style={{objectFit:'cover',width:"100%",borderRadius:"15px"}} alt="" />
-        </div>
-        <div 
-          className="selectCard" 
-          style={{
-            width: getCardWidth(2),
-            cursor: "pointer", 
-            transition: "width 0.6s ease"
-          }}
-          onMouseEnter={() => handleCardClick(2)}
-          onMouseLeave={() => handleCardClick(null)}
-        >
-          <img src={Accessories} style={{objectFit:'cover',width:"100%",borderRadius:"15px"}} alt="" />
-        </div>
-        <div 
-          className="selectCard" 
-          style={{
-            width: getCardWidth(3),
-            cursor: "pointer", 
-            transition: "width 0.6s ease"
-          }}
-          onMouseEnter={() => handleCardClick(3)}
-          onMouseLeave={() => handleCardClick(null)}
 
-        >
-          <img src={wtshirt} style={{objectFit:'cover',width:"100%",borderRadius:"15px"}} alt="" />
-        </div>
-        <div 
-          className="selectCard" 
-          style={{
-            width: getCardWidth(4),
-            cursor: "pointer", 
-            transition: "width 0.6s ease"
-          }}
-          onMouseEnter={() => handleCardClick(4)}
-          onMouseLeave={() => handleCardClick(null)}
+        {Products.slice(0, 4).map((prod, index) => {
+          // ✅ FIX only this line
+          const imagePath = prod?.images?.[0]?.urls?.[0]?.replace(/\\/g, "/");
 
-        >
-          <img src={tshirtmanches} style={{objectFit:'cover',width:"100%",borderRadius:"15px"}} alt="" />
-        </div> */}
-        {Products.slice(0, 4).map((prod, index) => (
-          <div 
-            key={prod._id}
-            className="selectCard"
-            style={{
-              width: getCardWidth(index),
-              cursor: "pointer",
-              transition: "width 0.6s ease"
-            }}
-            onClick={()=>navigate(`/PorductSelecte/${prod._id}`, {
-                        state: {
-                          parentCategoryId: prod.categoryId,
-                          subcategoryId: prod.subcategoryId,
-                          genre: prod.genre,
-                        }})}
-            onMouseEnter={() => handleCardClick(index)}
-            onMouseLeave={() => handleCardClick(null)}
-          >
-            <img 
-              src={`http://localhost:2025/${prod.images?.[0]?.urls?.[0]}`} 
-              alt={prod.name} 
-              style={{ objectFit: 'cover', width: "100%", borderRadius: "15px" }}
-            />
-          </div>
-        ))}
-
-      </div>
-      
-      {/* Subscribe Section */}
-      <div className='Subscribe-section'>
-        <Toaster/>
-        <div className="Subscribe-content">
-          <h2>Subscribe to our newletter</h2>
-          <p>Stay informed about Es Brand's news, special offers and trends!</p>
-          <form className="Subscribe-form" onSubmit={e => e.preventDefault()}>
-            <input 
-              type="email" 
-              value={email}
-              onChange={(e)=> setEmail(e.target.value)} 
-              placeholder="Votre email" 
-              required 
-              disabled={isSubscribing}
-            />
-            <button 
-              type="submit" 
-              onClick={Subscribe}
-              disabled={isSubscribing}
+          return (
+            <div 
+              key={prod._id}
+              className="selectCard"
+              style={{
+                backgroundImage: `url("http://192.168.1.17:2025/${imagePath}")`,
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+                width: getCardWidth(index), // ✅ unchanged
+                cursor: "pointer"
+              }}
+              onClick={() => navigate(`/PorductSelecte/${prod._id}`, {
+                state: {
+                  parentCategoryId: prod.categoryId,
+                  subcategoryId: prod.subcategoryId,
+                  genre: prod.genre,
+                }
+              })}
+              onMouseEnter={() => handleCardClick(index)}
+              onMouseLeave={() => handleCardClick(null)}
             >
-              {isSubscribing ? 'Subscribing...' : 'Subscribe'}
-            </button>
-          </form>
-        </div>
-      </div>
-
-      {/* About Section */}
-      <div className='about-section'>
-        <div className="about-content">
-          <div className="about-text">
-            <h2>About Es Brand</h2>
-            <p>We are passionate about creating high-quality, stylish clothing that empowers individuals to express their unique personality. Our designs blend contemporary trends with timeless elegance, ensuring every piece becomes a staple in your wardrobe.</p>
-            <div className="about-stats">
-              <div className="stat">
-                <h3>500+</h3>
-                <p>Happy Customers</p>
-              </div>
-              <div className="stat">
-                <h3>50+</h3>
-                <p>Unique Designs</p>
-              </div>
-              <div className="stat">
-                <h3>24/7</h3>
-                <p>Customer Support</p>
+              <div className="card-info" onClick={(e) => {
+                e.stopPropagation();
+                navigate(`/PorductSelecte/${prod._id}`, {
+                  state: {
+                    parentCategoryId: prod.categoryId,
+                    subcategoryId: prod.subcategoryId,
+                    genre: prod.genre,
+                  },
+                });
+              }}>
+                <div className="ci-row">
+                  <div className="ci-text">
+                    <h4 className="ci-title">{prod.name || 'Product'}</h4>
+                    {prod.price && <span className="ci-sep">•</span>}
+                    {prod.price && <span className="ci-price">{prod.price} DT</span>}
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-          <div className="about-image">
-            <img src={product5}  alt="About Es Brand" />
-          </div>
-        </div>
+          );
+        })}
+
       </div>
-
-
       {/* Categories Section */}
       <div className='categories-section'>
         <div className="categories-header">
-          <h2>Shop by Category</h2>
+          <h2>Collections</h2>
           <p>Find your perfect style</p>
         </div>
         <div className="categories-grid">
-          <div className="category-card">
+          <div className="category-card"onClick={() => {
+                    navigate(`/ProductU/Accessories`, {
+                      state: {
+                        parentCategoryId: '68e6aa7973661e800ce393d1',
+                        subcategoryId: null,
+                        genre: 'men',
+                      }
+                    });
+                  }}>
             <div className="category-image">
-              <img src={Hoodies} alt="Hoodies" />
+              <img src={pontalon} alt="Hoodies" />
             </div>
             <div className="category-info">
-              <h3>Hoodies</h3>
+              <h3>Pontalon</h3>
+              <p>Comfortable & Stylish</p>
+            </div>
+          </div>
+          <div className="category-card" onClick={() => {
+                    navigate(`/ProductU/Accessories`, {
+                      state: {
+                        parentCategoryId: '68e6a9f473661e800ce393ae',
+                        subcategoryId: null,
+                        genre: 'men',
+                      }
+                    });
+                  }}>
+            <div className="category-image">
+              <img src={veste} alt="Hoodies" />
+            </div>
+            <div className="category-info">
+              <h3>Blousons et manteaux</h3>
               <p>Comfortable & Stylish</p>
             </div>
           </div>
           <div className="category-card"  onClick={() => {
-                    navigate(`/ProductU/Accessories`, {
+                    navigate(`/ProductU/Chaussures`, {
                       state: {
-                        parentCategoryId: '68865fd48aeb37d665ebb038',
-                        subcategoryId: '688660178aeb37d665ebb056',
+                        parentCategoryId: '68e6aa8873661e800ce393d6',
+                        subcategoryId: null,
                         genre: 'men',
                       }
                     });
@@ -328,7 +258,7 @@ const sendMail = async () => {
               <img src={product2} alt="T-Shirts" />
             </div>
             <div className="category-info">
-              <h3>T-Shirts</h3>
+              <h3>Chaussures</h3>
               <p>Classic & Versatile</p>
             </div>
           </div>
@@ -336,9 +266,9 @@ const sendMail = async () => {
                     onClick={() => {
                     navigate(`/ProductU/Accessories`, {
                       state: {
-                        parentCategoryId: '68865fdf8aeb37d665ebb042',
-                        subcategoryId: '688a6c0d8d228dbe48cc2b2a',
-                        genre: 'women',
+                        parentCategoryId: '68e6ada473661e800ce39435',
+                        subcategoryId: null,
+                        genre: 'men',
                       }
                     });
                   }}
@@ -353,6 +283,31 @@ const sendMail = async () => {
           </div>
         </div>
       </div>
+     
+      <div className='Featured'>
+        <h1>Featured Collection</h1>
+        <p>Explore our carefully curated selection of premium streetwear and contemporary fashion</p>
+        <div className='FeaturedProductCards'>
+          {Products.slice(0, 4).map((prod, index) => 
+          <div className='FeaturedProductCard' onClick={() => (navigate(`/PorductSelecte/${prod._id}`, {
+                state: {
+                  parentCategoryId: prod.categoryId,
+                  subcategoryId: prod.subcategoryId,
+                  genre: prod.genre,
+                }
+              }))}>
+            <img src={`http://192.168.1.17:2025/${prod.images[0]?.urls[3]}`} alt="" />
+            <h2>{prod.name}</h2>
+            <h3>{prod.price} TND</h3>
+
+          </div>
+          )}
+        </div>
+      </div>
+
+      {/* About Section */}
+
+
 
       {showcontact && (
         <div className={`divcontactHome`} >
@@ -428,6 +383,31 @@ const sendMail = async () => {
         <div className="homediv-2-2">
         </div>
       </div> */}
+      {/* Subscribe Section */}
+      <div className='Subscribe-section'>
+        <Toaster/>
+        <div className="Subscribe-content">
+          <h2>Subscribe to our newletter</h2>
+          <p>Stay informed about Es Brand's news, special offers and trends!</p>
+          <form className="Subscribe-form" onSubmit={e => e.preventDefault()}>
+            <input 
+              type="email" 
+              value={email}
+              onChange={(e)=> setEmail(e.target.value)} 
+              placeholder="Votre email" 
+              required 
+              disabled={isSubscribing}
+            />
+            <button 
+              type="submit" 
+              onClick={Subscribe}
+              disabled={isSubscribing}
+            >
+              {isSubscribing ? 'Subscribing...' : 'Subscribe'}
+            </button>
+          </form>
+        </div>
+      </div>
       <div className='footer'>
         <div className="footer-container">
           <div className="footer-1">
@@ -437,7 +417,7 @@ const sendMail = async () => {
               </div>          </div>
           <div className="footer-1">
             <h3>Quick Links</h3>
-            <Link className='footerLinks'>Shoop</Link>
+            <Link to='/AboutEs' className='footerLinks'>About</Link>
             <Link onClick={()=>setShowContact(!showcontact)} className='footerLinks'>Contact</Link>
           </div>
           <div className="footer-1">
