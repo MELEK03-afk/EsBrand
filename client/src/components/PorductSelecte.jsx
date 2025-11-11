@@ -144,7 +144,9 @@ const ProductSelect = ({ setShowBag }) => {
   const scrollToTop = () => {
     window.scrollTo({ top: 100, behavior: 'smooth' });
   };
-
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [setShowBag]);
   const handleNextImage = () => {
     const colorObj = images.find(img => img.color?.toLowerCase() === selectedColor?.toLowerCase());
     if (colorObj?.urls?.length > 0) {
@@ -188,7 +190,6 @@ const ProductSelect = ({ setShowBag }) => {
 
       if (res.status === 200 || res.status === 201) {
         toast.success("Product added to cart successfully!");
-        setShowBag(true);
       }
     } catch (error) {
       if (error.response?.status !== 200) {
@@ -266,7 +267,7 @@ const ProductSelect = ({ setShowBag }) => {
             </div>
           </div>
 
-          <div className="details">
+          <div className="ProductSelect-details">
             <h1 className="name">{name}</h1>
             <p className="price">{price} TND</p>
 
@@ -476,22 +477,18 @@ const ProductSelect = ({ setShowBag }) => {
           )}
         </div>
       </div>
-
-      <div className='footer'>
-        <div className="footer-1">
-          <h2>Es</h2>
-          <p>Redefining streetwear with effortless elegance. Designed for bold, modern women.</p>
-        </div>
-        <div className="footer-1">
-          <h3>Quick Links</h3>
-          <Link className='footerLinks'>Shop</Link>
-        </div>
-        <div className="footer-1">
-          <h3>Get in Touch</h3>
-          <p className='getintouch'><Mail size={20} style={{ position: "relative", top: "5px", right: "5px" }} /> meleksaket2003@gmail.com</p>
-          <p className='getintouch'><Instagram size={20} style={{ position: "relative", top: "5px", right: "5px" }} /> esseketmelek</p>
-        </div>
+    <footer className="footer-2">
+      <div className="footer-links">
+        <a href="#">Conditions générales d'achat</a>
+        <span>•</span>
+        <a href="#">Conditions générales de #esbeandstyle</a>
+        <span>•</span>
+        <a href="#">Politique de confidentialité</a>
+        <span>•</span>
+        <a href="#">Politique de cookies</a>
       </div>
+      <div className="footer-copy">© 2025 ESBEAND CLOTHES</div>
+    </footer>
     </div>
   );
 };

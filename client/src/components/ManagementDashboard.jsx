@@ -48,9 +48,9 @@ const   ManagementDashboard = () => {
         <div className='ManagementDashboard-1'>
           <div className='h2Dash'>
             {showMenu == true ?(
-              <X onClick={()=>setshowMenu(!showMenu)}/>
+              <X onClick={()=>(setshowMenu(!showMenu))}/>
             ):(
-            <Menu onClick={()=>setshowMenu(!showMenu)}  style={{ cursor: "pointer"}}/>
+            <Menu onClick={()=>(setshowMenu(!showMenu))}  style={{ cursor: "pointer"}}/>
             )}
             <Link style={{textDecoration:"none",cursor:"pointer"}} >
               <h2>Es</h2>
@@ -58,13 +58,13 @@ const   ManagementDashboard = () => {
           </div>
           <div className='MenuDashbordPhone' style={{left: showMenu === true?'0%':'-90%'}}>
             <h3>Menu</h3>
-            <div onClick={()=>setshowMenu(!showMenu)} className="LienDash"><LayoutGrid size={20} /> Dashboard</div>
-            <div onClick={()=>setshowMenu(!showMenu)} className="LienDash"><Users size={20} /> Users</div>
-            <div onClick={()=>setshowMenu(!showMenu)} className="LienDash"><ShoppingCart size={20} /> Orders</div>
-            <div onClick={()=>setshowMenu(!showMenu)} className="LienDash"><Folder size={20} /> Categories</div>
-            <div onClick={()=>setshowMenu(!showMenu)} className="LienDash"><Package size={20} /> All Products</div>
-            <div onClick={()=>setshowMenu(!showMenu)} className="LienDash"><PlusCircle size={20} /> Add New Product</div>
-            <div onClick={()=>setshowMenu(!showMenu)} className="LienDash"><BarChart3 size={20} /> Sales Reports</div>
+            <div onClick={()=>(setshowMenu(!showMenu),handleMenuSelect('Dashbord'))} className="LienDash"><LayoutGrid size={20} /> Dashboard</div>
+            <div onClick={()=>(setshowMenu(!showMenu),handleMenuSelect('Users'))} className="LienDash"><Users size={20} /> Users</div>
+            <div onClick={()=>(setshowMenu(!showMenu),handleMenuSelect('Orders'))} className="LienDash"><ShoppingCart size={20} /> Orders</div>
+            <div onClick={()=>(setshowMenu(!showMenu),handleMenuSelect('Categories'))} className="LienDash"><Folder size={20} /> Categories</div>
+            <div onClick={()=>(setshowMenu(!showMenu),handleMenuSelect('AllProducts'))} className="LienDash"><Package size={20} /> All Products</div>
+            <div onClick={()=>(setshowMenu(!showMenu),handleMenuSelect('AddNewProduct'))} className="LienDash"><PlusCircle size={20} /> Add New Product</div>
+            <div onClick={()=>(setshowMenu(!showMenu),handleMenuSelect('SalesReports'))} className="LienDash"><BarChart3 size={20} /> Sales Reports</div>
           </div>
           {showMenu && (
             <div onClick={() => setshowMenu(false)} className='overflowPhone'>

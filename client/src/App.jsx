@@ -19,6 +19,7 @@ import ConfirmSubscribePage from './components/ConfirmSubscribePage'
 import ResetPasword from './components/ResetPassword'
 import AboutComp from './components/AboutComp'
 import ChangeComp from './components/ChangeComp'
+import FinalePage from './components/FinalePage'
 function App() {
   const [count, setCount] = useState(0)
   const [showBag, setShowBag] = useState(false); // LIFTED STATE
@@ -41,6 +42,7 @@ function App() {
         <Route path='/ProductU/:subcategoryName' element={<ProductsU/>}/>
         <Route path='/Commande' element={<CommandeComp/>}/>
         <Route path="/profile" element={<ProfileComp />} />
+        <Route path='/order-confirmation' element={<FinalePage/>}/>
         <Route path='/ContactPage' element={<ContactPage/>}/>
         <Route path="/confirm-subscribe/:token" element={<ConfirmSubscribePage/>}/>
         <Route path='/ManagementDashboard/*' element={<ManagementDashboard/>}>

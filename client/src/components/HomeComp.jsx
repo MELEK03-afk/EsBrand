@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import ChangeComp from './ChangeComp'
 import product from '../images/capuche.png'
-import { Instagram,Shirt,X ,Smartphone,CircleCheckBig ,Search,Bolt,BookOpen,Trophy,Mail,MapPin,Phone,Clock ,ArrowRight} from 'lucide-react';
+import { Instagram,Shirt,X ,Smartphone,CircleCheckBig ,Youtube,Twitter,BookOpen,Trophy,Mail,MapPin,Phone,Clock ,ArrowRight} from 'lucide-react';
 import product2 from '../images/product-32-0.png'
 import Accessories from '../images/stoush.jpg'
 import veste from '../images/vetment/product-28-3.jpg.png'
@@ -325,7 +325,7 @@ const sendMail = async () => {
                 <h2> <Phone size={19} color='#03F7EB'/> Telephone</h2>
                 <p>+216 99993286</p>
                 <h2> <Mail size={19} color='#03F7EB'/> Email</h2>
-                <p>KickOff@gmail.com</p>
+                <p>Es@gmail.com</p>
                 <h2> <Clock size={19} color='#03F7EB'/> Hours of operation</h2>
                 <p>Lun - Ven: 8h00 - 01h00</p>
               </div>
@@ -363,11 +363,11 @@ const sendMail = async () => {
               </div>
             </div>
             <div className='rejoindre'>
-              <h1>Why join us?</h1>
-              <h3><CircleCheckBig size={19} color='#03F7EB'/> Increase the visibility of your land</h3>
-              <h3><CircleCheckBig size={19} color='#03F7EB'/> Simplified reservation management</h3>
-              <h3><CircleCheckBig size={19} color='#03F7EB'/> Dedicated technical support</h3>
-              <h3><CircleCheckBig size={19} color='#03F7EB'/> Attractive commission</h3>
+              <h1>Trendy & Fashion-Focused</h1>
+              <h3><CircleCheckBig size={19} color='#03F7EB'/> Showcase your style to a wider audience</h3>
+              <h3><CircleCheckBig size={19} color='#03F7EB'/> Easy product management and updates</h3>
+              <h3><CircleCheckBig size={19} color='#03F7EB'/> Dedicated brand support team</h3>
+              <h3><CircleCheckBig size={19} color='#03F7EB'/> Earn attractive profits</h3>
               <h3><CircleCheckBig size={19} color='#03F7EB'/> Automated secure payments</h3>
             </div>
           </div>
@@ -408,25 +408,60 @@ const sendMail = async () => {
           </form>
         </div>
       </div>
-      <div className='footer'>
-        <div className="footer-container">
-          <div className="footer-1">
-            <h2>Es</h2>
-              <div className="footer-copyright">
-                &copy; {new Date().getFullYear()} Es. All rights reserved.
-              </div>          </div>
-          <div className="footer-1">
-            <h3>Quick Links</h3>
-            <Link to='/AboutEs' className='footerLinks'>About</Link>
-            <Link onClick={()=>setShowContact(!showcontact)} className='footerLinks'>Contact</Link>
+
+        <footer className="footer">
+          <div className="footer-sections">
+            <div className="footer-col">
+              <h4>About ES</h4>
+              <ul>
+                <Link to='/AboutEs' className='footerLinks' >Our Story</Link>
+                <Link to='/AboutEs' className='footerLinks'>Careers</Link>
+                <Link to='/AboutEs' className='footerLinks'>Sustainability</Link>
+                <Link to='/AboutEs' className='footerLinks'>Store Locator</Link>
+              </ul>
+            </div>
+
+            <div className="footer-col">
+              <h4>Customer Service</h4>
+              <ul>
+                <li onClick={()=>setShowContact(!showcontact)}>Contact Us</li>
+                <li>Shipping & Returns</li>
+                <li>Size Guide</li>
+                <li>FAQ</li>
+              </ul>
+            </div>
+
+            <div className="footer-col">
+              <h4>Shop</h4>
+              <ul>
+                <li>New Arrivals</li>
+                <li>Sneakers</li>
+                <li>Basketball</li>
+                <li>Tennis</li>
+              </ul>
+            </div>
+
+            <div className="footer-col">
+              <h4>Stay Connected</h4>
+
+              <div className="social-icons">
+                <Mail />
+                <Instagram />
+                <Twitter />
+                <Youtube />
+              </div>
+            </div>
           </div>
-          <div className="footer-1">
-            <h3>Get in Touch</h3>
-            <p className='getintouch'><span><Mail size={20} style={{position:"relative",top:"5px",right:"5px"}}/></span>meleksaket2003@gmail.com</p>
-            <p className='getintouch'><span><Instagram  size={20} style={{position:"relative",top:"5px",right:"5px"}}/></span>esseketmelek</p>
+
+          <div className="footer-bottom">
+            <p>© 2025 ES. All rights reserved.</p>
+            <div className="footer-links">
+              <a href="#">Privacy Policy</a>
+              <a href="#">Terms of Service</a>
+              <a href="#">Cookie Policy</a>
+            </div>
           </div>
-        </div>
-      </div>
+        </footer>
     </div>
   )
 }

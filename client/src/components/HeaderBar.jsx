@@ -1,4 +1,4 @@
-import React,{useState,useEffect,useMemo} from 'react'
+import React,{useState,useEffect,useMemo,useRef} from 'react'
 import * as LucideIcons from "lucide-react";
 import { Menu,Search,UserRound,Smartphone,Footprints ,Shirt ,X ,LogOut,User,Mail, CreditCard, ArrowLeft ,Truck, MapPin,ShoppingBag,ShieldUser,Edit2,Trash2 ,Dot,MoveRight,MoveLeft   } from 'lucide-react';
 import { Link, useNavigate,useLocation  } from 'react-router-dom';
@@ -25,6 +25,7 @@ function HeaderBar({showBag,setShowBag}   ) {
   const [HoverSub,setHoverSub] =useState(null)
   const [categories, setCategories] = useState([]);
   const [subcategories, setSubcategories] = useState([]);
+  const [Allsubcategories, setAllSubcategories] = useState([]);
   const [productCart, setProductCart] = useState([]);
   const [product, setProduct] = useState([]);
   const [sizes, setSizes] = useState([]);
@@ -45,6 +46,7 @@ function HeaderBar({showBag,setShowBag}   ) {
   const navigate = useNavigate();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const subcategoriesScrollRef = useRef(null);
   const icons = {
     Shirt,
     ShoppingBag,
@@ -106,6 +108,18 @@ function HeaderBar({showBag,setShowBag}   ) {
       console.log(error);
     }
   };
+  const getAllSubCategory = async (id) => {  
+    try {
+      const res = await axios.get(`http://192.168.1.17:2025/api/getAllSubCategory`);
+      setAllSubcategories(res.data);     
+       
+    } catch (error) {
+      console.log(error);
+      if (error.response?.status !== 200) {
+        toast.error(error.response?.data?.message)
+      }
+    }
+  };
   const getSubCategory = async (id) => {  
     try {
       const res = await axios.get(`http://192.168.1.17:2025/api/Admin/Get-Subcategory/${id}`);
@@ -117,6 +131,15 @@ function HeaderBar({showBag,setShowBag}   ) {
         toast.error(error.response?.data?.message)
       }
     }
+  };
+  const scrollSubcategories = (direction) => {
+    if (!subcategoriesScrollRef.current) return;
+    const container = subcategoriesScrollRef.current;
+    const scrollAmount = container.offsetWidth * 0.7;
+    container.scrollBy({
+      left: direction === 'left' ? -scrollAmount : scrollAmount,
+      behavior: 'smooth'
+    });
   };
   const GetPById = async (id) => {  
     
@@ -189,6 +212,7 @@ function HeaderBar({showBag,setShowBag}   ) {
   };
   useEffect(() => {
     getCategory();
+    getAllSubCategory()
   }, []);
   useEffect(() => {
     getProductCart();
@@ -304,7 +328,12 @@ function HeaderBar({showBag,setShowBag}   ) {
       console.log(error);
     }
   };
-
+  const filteredProducts = AllProducts.filter(product =>
+    product.name.toLowerCase().includes(searchInput.toLowerCase())
+  );
+  const filteredSubcategory = Allsubcategories.filter(subc =>
+    subc.name.toLowerCase().includes(searchInput.toLowerCase())
+  );
 
     const items = [
     { icon: <MapPin size={18} style={{ marginRight: "6px" }} />, text: "Livraison rapide sur toute la Tunisie" },
@@ -314,27 +343,7 @@ function HeaderBar({showBag,setShowBag}   ) {
   ];
   return (
     <div>
-      {/* <div className="HeaderBar-2">
-        <div className="scrolling-text">
-          Livraison gratuite à partir de 120 DT
-        </div>
-      </div> */}
-      {/* {location.pathname === "/" && (
-        <div className="InfoBar">
-          <div className="scrolling-wrapper">
-            {items.map((item, i) => (
-              <div className="scrolling-item" key={i}>
-                {item.icon} {item.text}
-              </div>
-            ))}
-            {items.map((item, i) => (
-              <div className="scrolling-item" key={`dup-${i}`}>
-                {item.icon} {item.text}
-              </div>
-            ))}
-          </div>
-        </div>
-      )} */}
+
       {showBag && (
         <div onClick={() => {setShowBagEdit(false),setTimeout(() => {setShowBag(false);}, 400)}} className='overflow-2'>
         </div>
@@ -356,10 +365,59 @@ function HeaderBar({showBag,setShowBag}   ) {
               <input id="FetchMobile" type="text" placeholder="Search..." />
             </div>
             <X style={{position:'absolute',right:"10px",cursor:"pointer"}} onClick={()=>setSearchMobile(false)} size={20}/>
-            <div className='SearchMobileCompGenre'>
-              <h4 onClick={()=>setSearchGenre('Tous')} style={{backgroundColor:SearchGenre === 'Tous'?'black':"white",color:SearchGenre === 'Tous'?'white':"black"}}>Tous</h4>
-              <h4 onClick={()=>setSearchGenre('Femme')} style={{backgroundColor:SearchGenre === 'Femme'?'black':"white",color:SearchGenre === 'Femme'?'white':"black"}}>Femme</h4>
-              <h4 onClick={()=>setSearchGenre('Homme')} style={{backgroundColor:SearchGenre === 'Homme'?'black':"white",color:SearchGenre === 'Homme'?'white':"black"}}>Homme</h4>
+            <div
+              className='SearchMobileCompGenre'
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                marginTop: '16px'
+              }}
+            >
+              <MoveLeft
+                size={22}
+                onClick={() => scrollSubcategories('left')}
+                style={{ cursor: 'pointer' }}
+              />
+              <div
+                ref={subcategoriesScrollRef}
+                className='SearchMobileCompGenreList'
+                style={{
+                  display: 'flex',
+                  overflowX: 'auto',
+                  gap: '0px',
+                  padding: '4px 0',
+                  paddingRight: '24px',
+                  scrollbarWidth: 'none',
+                  msOverflowStyle: 'none',
+                  WebkitOverflowScrolling: 'touch'
+                }}
+              >
+                {Allsubcategories.map((subcategory, index) => (
+                  <h4
+                    key={subcategory._id || index}
+                    onClick={() => setSearchGenre(subcategory.genre || 'Homme')}
+                    style={{
+                      flex: '0 0 auto',
+                      minWidth: '100px',
+                      margin: '0',
+                      padding: '6px 12px',
+                      borderRadius: '16px',
+                      color: '#303030',
+                      whiteSpace: 'nowrap',
+                      cursor: 'pointer',
+                      textAlign: 'center'
+                    }}
+                  >
+                    {subcategory.name}
+                  </h4>
+                ))}
+              </div>
+              <MoveRight
+                size={22}
+                onClick={() => scrollSubcategories('right')}
+                style={{ cursor: 'pointer' }}
+              />
             </div>
             <h1>You might be interested in</h1>
 
@@ -383,29 +441,120 @@ function HeaderBar({showBag,setShowBag}   ) {
       )}
 
       <div className={`Search ${showSearch ? "open" : ""}`}>
-        <X 
-          style={{
-            color: "black",
-            position: "absolute",
-            right: "20px",
-            cursor: "pointer",
-            opacity: showSearch ? 1 : 0,
-            transition: "opacity 0.3s ease"
-          }} onClick={() => setShowSearch(false)}/>
-          <div className='divshowSearch'>
-            <Search style={{color:"grey"}}/>
+        <div className='divshowSearch'>
+          <Search style={{cursor:"pointer",position:"absolute",left:"2%",color:"black"}}/>
           <input 
+            id="SearchDesktop"
             type="text"
             className="SearchInput"
-            placeholder="Search For ...."
+            placeholder="Search..."
+            onChange={(e)=>setSearchInput(e.target.value)}
             style={{
               opacity: showSearch ? 1 : 0,
               pointerEvents: showSearch ? "auto" : "none",
               transition: "opacity 0.4s ease"
             }}
           />
-          </div>
+        </div>
+        <X 
+          style={{
+            position:'absolute',
+            right:"10px",
+            top: "20px",
+            cursor:"pointer",
+            color: "black"
+          }} 
+          onClick={() => setShowSearch(false)} 
+          size={20}
+        />
+        {showSearch && (
+          <>
+            <div
+              className='SearchMobileCompGenre'
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                marginTop: '16px'
+              }}
+            >
+              <MoveLeft
+                size={22}
+                onClick={() => scrollSubcategories('left')}
+                style={{ cursor: 'pointer' }}
+              />
+              <div
+                ref={subcategoriesScrollRef}
+                className='SearchMobileCompGenreList'
+                style={{
+                  display: 'flex',
+                  overflowX: 'auto',
+                  gap: '0px',
+                  padding: '4px 0',
+                  paddingRight: '24px',
+                  scrollbarWidth: 'none',
+                  msOverflowStyle: 'none',
+                  WebkitOverflowScrolling: 'touch'
+                }}
+              >
+                {filteredSubcategory.map((subcategory, index) => (
+                  <h4
+                    key={subcategory._id || index}
+                    onClick={() => setSearchGenre(subcategory.genre || 'Homme')}
+                    style={{
+                      flex: '0 0 auto',
+                      minWidth: '100px',
+                      margin: '0',
+                      padding: '6px 12px',
+                      borderRadius: '16px',
+                      color: '#303030',
+                      whiteSpace: 'nowrap',
+                      cursor: 'pointer',
+                      textAlign: 'center'
+                    }}
+                  >
+                    {subcategory.name}
+                  </h4>
+                ))}
+              </div>
+              <MoveRight
+                size={22}
+                onClick={() => scrollSubcategories('right')}
+                style={{ cursor: 'pointer' }}
+              />
+            </div>
+            <h1 style={{
+              fontSize: '19px',
+              fontWeight: 400,
+              marginTop: '7%',
+              marginLeft: '2%'
+            }}>You might be interested in</h1>
 
+            <div className='SearchMobileProductS'>
+              {filteredProducts.map((prod, index) => 
+                <div 
+                  key={prod._id || index} 
+                  id='FeaturedProductCard'  
+                  className='FeaturedProductCard'
+                  onClick={()=>{
+                    navigate(`/PorductSelecte/${prod._id}`, {
+                      state: {
+                        parentCategoryId: prod.categoryId,
+                        subcategoryId: prod.subcategoryId,
+                        genre: prod.genre,
+                      }
+                    });
+                    setShowSearch(false);
+                  }}
+                >
+                  <img src={`http://192.168.1.17:2025/${prod.images[0]?.urls[3]}`} alt="" />
+                  <h2>{prod.name}</h2>
+                  <h3>{prod.price} TND</h3>
+                </div>
+              )}
+            </div>
+          </>
+        )}
       </div>
 
       <div   className='HeaderBar slide-down'>
@@ -415,22 +564,6 @@ function HeaderBar({showBag,setShowBag}   ) {
           <Link className='h1' to='/' style={{textDecoration:"none",color:"white"}}>
             <img src={EsL} onClick={()=>(setShowMenu(false),setShowBag(false))} width={'70px'} height={'70px'} alt="" />
           </Link>
-          {/* <div className='recherche'>
-            <input 
-              type="text" 
-              value={searchInput}
-              onChange={(e) => setSearchInput(e.target.value)}
-              placeholder="Search products..."
-            />
-            {searchInput && (
-              <X 
-                size={16} 
-                style={{cursor:"pointer", marginRight: "5px"}} 
-                onClick={() => setSearchInput('')}
-              />
-            )}
-            <Search style={{cursor:"pointer"}}/>
-          </div> */}
           <div className='HeaderBar-3'> 
             <div className='HeaderIcons'>
               <div className="HeaderBar-4">
@@ -589,7 +722,7 @@ function HeaderBar({showBag,setShowBag}   ) {
                 ? "width 0.5s ease, padding-bottom 0.5s ease" // slow open
                 : "width 0.15s ease, padding-bottom 0.15s ease" // fast close
             }}>
-          {productCart.cart?.products?.length === 0 ?(          
+          {productCart.cart?.products?.length === 0 || !user ?(          
             <div>
               <X className='XMobileBag' onClick={()=>setShowBag(false)} style={{display: showBag ?"":"none",cursor:"pointer", marginLeft:"90%"}}/>
               <ArrowLeft  onClick={()=>setShowBag(false)} style={{display: showBag ?"":"none",cursor:"pointer", marginLeft:"2%"}}/>
@@ -673,8 +806,8 @@ function HeaderBar({showBag,setShowBag}   ) {
                 : "width 0.15s ease, padding-bottom 0.15s ease" // fast close
             }}>
           <X onClick={()=>setShowBagEdit(false)} style={{display: showBagEdit ?"":"none",cursor:"pointer", marginLeft:"90%"}}/>
-          <h3 style={{display: showBagEdit ?"":"none",margin:"0"}}>{name}</h3>
-          {image && <img src={image} alt="Product" />}
+          <h3 style={{display: showBagEdit ?"":"none",position:"absolute"}}>{name}</h3>
+          {image && <img style={{display: showBagEdit ?"":"none"}} src={image} alt="Product" />}
           <div className="colorSwatches">
             {colors.map((color, index) => {
               const imgUrl = getImageByColor(product, color);
@@ -718,7 +851,7 @@ function HeaderBar({showBag,setShowBag}   ) {
               </button>
             ))}
           </div>
-          <div className='HeaderBar-4' style={{display: showBagEdit ?"":"none"}}>
+          <div className='EditShopBorder' style={{display: showBagEdit ?"":"none"}}>
             <button className='Update' onClick={updateCartItem} >Update</button>
           </div>
         </div>

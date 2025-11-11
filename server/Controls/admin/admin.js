@@ -96,6 +96,15 @@ import Cart from "../../models/Cart.js"
           return res.status(404).json({Message:"Internal server error",error})
       }
   }
+  export const getAllSubCategory = async(req,res)=>{    
+    try {
+        const subcategory= await Subcategory.find()     
+        return res.status(200).json(subcategory)
+    } catch (error) {
+        console.log(error);
+        return res.status(404).json({Message:"Internal server error",error})
+    }
+  }
   export const deleSubCategory= async (req , res) => {
       if (req.user.role !== "Admin" && req.user.role !== "Owner") {
           return res.status(500).json({message : "You don't have access to do that"})

@@ -9,6 +9,7 @@ import Product from "../../models/Product.js"
 import mongoose from "mongoose";
 import nodemailer from "nodemailer"
 import crypto from "crypto";
+import { log } from "console"
 
 export const singUp = async(req,res)=>{
     
@@ -323,8 +324,10 @@ export const getCart = async (req, res) => {
 };
 
 export const updateCartItem = async (req, res) => {
+  const { userId, productId, size, color, quantity } = req.body;
+  console.log( userId, productId, size, color, quantity );
+  
   try {
-    const { userId, productId, size, color, quantity } = req.body;
     if (!userId || !productId || !size || !color || quantity === undefined) {
       return res.status(400).json({ message: 'All fields are required' });
     }
