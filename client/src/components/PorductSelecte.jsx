@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { useParams, useLocation, Link, useNavigate } from 'react-router-dom';
 import { ArrowRight, ArrowLeft, ShoppingBag, Mail, Instagram, Heart } from 'lucide-react';
@@ -21,9 +21,8 @@ const ProductSelect = ({ setShowBag }) => {
   const [selectedSize, setSelectedSize] = useState('');
   const [allProducts, setAllProducts] = useState([]);
   const [AllProducts, setAlProducts] = useState([]);
-  const [subListStart, setSubListStart] = useState(0);
-  const [slideDirection, setSlideDirection] = useState('');
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const subcategoriesScrollRef = useRef(null);
   const [touchStart, setTouchStart] = useState(null);
   const [touchEnd, setTouchEnd] = useState(null);
   const user = JSON.parse(localStorage.getItem('user'));
@@ -34,7 +33,7 @@ const ProductSelect = ({ setShowBag }) => {
   const getSafeImageUrl = (img) => {
     if (!img) return '/default.png';
     if (typeof img === 'string') return `http://192.168.1.17:2025/${img}`;
-    if (typeof img === 'object' && img.urls?.length) return `http://192.168.1.17:2025/${img.urls[0]}`;
+    if (typeof img === 'object' && img.urls?.length) return `http://192.168.1.17:2025/${img.urls[2]}`;
     return '/default.png';
   };
 
@@ -116,26 +115,11 @@ const ProductSelect = ({ setShowBag }) => {
     setCurrentImageIndex(0);
   }, [selectedColor]);
 
-  const handleSubPrev = () => {
-    setSlideDirection('slide-right');
-    setTimeout(() => {
-      setSubListStart(prev => (prev > 0 ? prev - 1 : Math.max(allProducts.length - 3, 0)));
-    }, 0);
+  const scrollSubcategories = (direction) => {
+    if (!subcategoriesScrollRef.current) return;
+    const scrollAmount = direction === 'left' ? -180 : 180;
+    subcategoriesScrollRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
   };
-
-  const handleSubNext = () => {
-    setSlideDirection('slide-left');
-    setTimeout(() => {
-      setSubListStart(prev => (prev < Math.max(allProducts.length - 3, 0) ? prev + 1 : 0));
-    }, 0);
-  };
-
-  useEffect(() => {
-    if (slideDirection) {
-      const timer = setTimeout(() => setSlideDirection(''), 400);
-      return () => clearTimeout(timer);
-    }
-  }, [slideDirection]);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -334,11 +318,11 @@ const ProductSelect = ({ setShowBag }) => {
       )}
 
       <div className='SubcategoryProduct' style={{ display: 'flex', alignItems: 'center', marginTop: 32 }}>
-        <div className='Arrow' onClick={handleSubPrev}>
+        <div className='Arrow' onClick={() => scrollSubcategories('left')}>
           <ArrowLeft size={30} style={{ cursor: 'pointer' }} />
         </div>
-        <div className={`productsSub${slideDirection ? ' ' + slideDirection : ''}`}>
-          {allProducts.slice(subListStart, subListStart + 3).map((prod) => {
+        <div className="productsSub" ref={subcategoriesScrollRef}>
+          {allProducts.map((prod) => {
             const imgUrl = getSafeImageUrl(prod.images[0]);
             return (
               <div key={prod._id} onClick={() => {
@@ -351,13 +335,13 @@ const ProductSelect = ({ setShowBag }) => {
                 });
                 scrollToTop();
               }} className='PS'>
-                <img src={imgUrl} alt={prod.name} style={{ width: "100%", height: '80%', objectFit: 'cover', borderRadius: 8 }} />
-                <div style={{ fontSize: 12, marginTop: '8%' }}>{prod.name}</div>
+                <img src={imgUrl} alt={prod.name} style={{ width: "100%", height: '90%', objectFit:"cover", borderRadius: 8 }} />
+                <div style={{ fontSize: 12, marginTop: '2%' }}>{prod.name}</div>
               </div>
             );
           })}
         </div>
-        <div className='Arrow' onClick={handleSubNext}>
+        <div className='Arrow' onClick={() => scrollSubcategories('right')}>
           <ArrowRight size={30} style={{ cursor: 'pointer' }} />
         </div>
       </div>
