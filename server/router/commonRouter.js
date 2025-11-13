@@ -1,5 +1,5 @@
 import express from 'express'
-import {  addToCart, getCart, removeFromCart, singUp, singIn, Subscribe, updateCartItem, getFilters, getProduct, ConfirmSubscribe, ResetEmail, CheckEmail, Newpassword, createOrder } from '../Controls/common/common.js'
+import {  addToCart, getCart, removeFromCart, singUp, singIn, Subscribe, updateCartItem, getFilters, getProduct, ConfirmSubscribe, ResetEmail, CheckEmail, Newpassword, createOrder, ContactMessage } from '../Controls/common/common.js'
 import { getAllSubCategory, getProductById, getProductCart } from '../Controls/admin/admin.js'
 import { protect } from '../MidelWer/auth.js'
 
@@ -16,6 +16,8 @@ router.get('/GetProduct',getProduct)
 router.post('/ResetEmail',ResetEmail)
 router.post('/CheckEmail',CheckEmail)
 router.post('/NewPassword',Newpassword)
+router.post('/Contactez-nous',ContactMessage)
+
 // Cart routes
 router.post('/AddToCart', protect, addToCart)
 router.post('/create-order/:id', protect, createOrder)

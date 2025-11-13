@@ -1,29 +1,67 @@
 import React, { useState, useEffect } from 'react'
 import ChangeComp from './ChangeComp'
-import product from '../images/capuche.png'
 import { Instagram,Shirt,X ,Smartphone,CircleCheckBig ,Youtube,Twitter,BookOpen,Trophy,Mail,MapPin,Phone,Clock ,ArrowRight} from 'lucide-react';
 import product2 from '../images/product-32-0.png'
 import Accessories from '../images/stoush.jpg'
 import veste from '../images/vetment/product-28-3.jpg.png'
 import pontalon from '../images/vetment/pontalon-6-0.png'
-import product5 from '../images/vetment/product-30-1.jpg.png'
+import Hoodiessoon from '../images/houdies.png'
 import { Link, useNavigate } from 'react-router-dom';
 import toast,{Toaster}  from 'react-hot-toast'
+import vd from '../images/vd.mp4'
 
 import axios from 'axios'
+
+const DROP_DATE = new Date('2025-12-01T00:00:00Z')
 
 const HomeComp = () => {
   const [selectedCard, setSelectedCard] = useState(null);
   const [showcontact,setShowContact]=useState(false)
   const [showSpinner, setShowSpinner] = useState(true); // Spinner state
   localStorage.setItem('selecteMenu', 'Dashbord');
-  const [email, setEmail] = useState('')
   const [isSubscribing, setIsSubscribing] = useState(false)
   const [Products, setProducts] = useState([]);
   const user = JSON.parse(localStorage.getItem("user"));
-  const [nom, setNom] = useState("");
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState('')
+  const [subject, setSubject] = useState('')
+  const [message, setMessage] = useState('')
+  const [dropCountdown, setDropCountdown] = useState(() => {
+  const initial = DROP_DATE.getTime() - Date.now()
+    return getCountdownObject(initial)
+  })
 
   const navigate = useNavigate();
+
+  function getCountdownObject(distance) {
+    if (distance <= 0) {
+      return { days: '00', hours: '00', minutes: '00', seconds: '00' }
+    }
+    const days = Math.floor(distance / (1000 * 60 * 60 * 24))
+    const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
+    const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60))
+    const seconds = Math.floor((distance % (1000 * 60)) / 1000)
+
+    const pad = (value) => value.toString().padStart(2, '0')
+
+    return {
+      days: pad(days),
+      hours: pad(hours),
+      minutes: pad(minutes),
+      seconds: pad(seconds),
+    }
+  }
+
+  const updateCountdown = () => {
+    const distance = DROP_DATE.getTime() - Date.now()
+    setDropCountdown(getCountdownObject(distance))
+  }
+const isValid = () => {
+  return name && email && phone && message && subject;
+};
+  
+const isNumber = (value) => /^\d+(\.\d+)?$/.test(value); // Optional decimal
 
 const sendMail = async () => {
   console.log(phone, email, message, subject);
@@ -61,6 +99,7 @@ const sendMail = async () => {
 
     if (res.status === 200) {
       toast.success("Message sent successfully ✅");
+      setShowContact(false)
       console.log("Message sent successfully");
     }
   } catch (error) {
@@ -120,7 +159,7 @@ const sendMail = async () => {
   };
 
   const getCardWidth = (index) => {
-    return selectedCard === index ? "36%" : "15%";
+    return selectedCard === index ? "39%" : "15%";
   };
   useEffect(() => {
     if (showcontact) {
@@ -142,6 +181,12 @@ const sendMail = async () => {
     
   }, []);
 
+  useEffect(() => {
+    updateCountdown()
+    const interval = setInterval(updateCountdown, 1000)
+    return () => clearInterval(interval)
+  }, [])
+
   return (
     <div className='HomeComp' onClick={()=>setShowContact}>
       {showSpinner && (
@@ -156,7 +201,7 @@ const sendMail = async () => {
       <ChangeComp/>
       <div className="homediv-0">
 
-        {Products.slice(0, 4).map((prod, index) => {
+        {Products.slice(0, 5).map((prod, index) => {
           // ✅ FIX only this line
           const imagePath = prod?.images?.[0]?.urls?.[0]?.replace(/\\/g, "/");
 
@@ -168,7 +213,7 @@ const sendMail = async () => {
                 backgroundImage: `url("http://192.168.1.17:2025/${imagePath}")`,
                 backgroundSize: "cover",
                 backgroundPosition: "center",
-                width: getCardWidth(index), // ✅ unchanged
+                width: getCardWidth(index),
                 cursor: "pointer"
               }}
               onClick={() => navigate(`/PorductSelecte/${prod._id}`, {
@@ -212,9 +257,9 @@ const sendMail = async () => {
         </div>
         <div className="categories-grid">
           <div className="category-card"onClick={() => {
-                    navigate(`/ProductU/Accessories`, {
+                    navigate(`/ProductU/Pontalon`, {
                       state: {
-                        parentCategoryId: '68e6aa7973661e800ce393d1',
+                        parentCategoryId: '691607d9f85af644092ddd9f',
                         subcategoryId: null,
                         genre: 'men',
                       }
@@ -229,9 +274,9 @@ const sendMail = async () => {
             </div>
           </div>
           <div className="category-card" onClick={() => {
-                    navigate(`/ProductU/Accessories`, {
+                    navigate(`/ProductU/Blousons et manteaux`, {
                       state: {
-                        parentCategoryId: '68e6a9f473661e800ce393ae',
+                        parentCategoryId: '691607a9f85af644092ddd86',
                         subcategoryId: null,
                         genre: 'men',
                       }
@@ -248,7 +293,7 @@ const sendMail = async () => {
           <div className="category-card"  onClick={() => {
                     navigate(`/ProductU/Chaussures`, {
                       state: {
-                        parentCategoryId: '68e6aa8873661e800ce393d6',
+                        parentCategoryId: '69160810f85af644092dddb3',
                         subcategoryId: null,
                         genre: 'men',
                       }
@@ -266,7 +311,7 @@ const sendMail = async () => {
                     onClick={() => {
                     navigate(`/ProductU/Accessories`, {
                       state: {
-                        parentCategoryId: '68e6ada473661e800ce39435',
+                        parentCategoryId: '69160816f85af644092dddb8',
                         subcategoryId: null,
                         genre: 'men',
                       }
@@ -288,7 +333,7 @@ const sendMail = async () => {
         <h1>Featured Collection</h1>
         <p>Explore our carefully curated selection of premium streetwear and contemporary fashion</p>
         <div className='FeaturedProductCards'>
-          {Products.slice(0, 4).map((prod, index) => 
+          {Products.slice(0, 5).map((prod, index) => 
           <div className='FeaturedProductCard' onClick={() => (navigate(`/PorductSelecte/${prod._id}`, {
                 state: {
                   parentCategoryId: prod.categoryId,
@@ -310,14 +355,14 @@ const sendMail = async () => {
 
 
       {showcontact && (
-        <div className={`divcontactHome`} >
+        <div className='divcontactHome' >
         <Toaster/>
           <div style={{width:"100%",height:"100%",zIndex:"222",paddingBottom:'39%'}}>
-          <ArrowRight size={30} onClick={()=>setShowContact(false)} style={{color:"white",cursor:"pointer",position:"absolute",top:"10px",left:"97%"}}/>
+          <ArrowRight size={30} id='ArrowContact' onClick={()=>setShowContact(false)} />
             <h1>Contact-<span style={{color:"#03F7EB"}}>us</span></h1>
             <p>Join our Sport Booking partner network and make your pitch easily accessible – we’d love to hear from you!</p>
             <div style={{display:"flex",justifyContent:"center",gap:"5%"}}>
-              <div className='InformationsContact'>
+              <div id='ContacnMobileHide' className='InformationsContact'>
                 <h1> <Mail color='#03F7EB'/> Information de contact</h1>
                 <h2> <MapPin size={19} color='#03F7EB'/> Adresse</h2>
                 <p>123 Avenue du Sport</p>
@@ -331,26 +376,26 @@ const sendMail = async () => {
               </div>
               <div className='InformationsContact' style={{height:"660px"}}>
                 <h3>Send us a message</h3>
-                <div className='FormContact'>
+                <div className='FormContact' id='FormContact1'>
                   <div style={{marginLeft:"4%"}}>
                     <h4>Full name </h4>
-                    <input type="text" onChange={(e)=>setName(e.target.value)} placeholder='your name' name="" id="" />
+                    <input type="text" onChange={(e)=>setName(e.target.value)} placeholder='your name' name="" id='inputsContact1' />
                   </div>
                   <div style={{marginLeft:"4%"}}>
                     <h4>Telephone </h4>
-                    <input type="text" onChange={(e)=>setPhone(e.target.value)} name="" placeholder="+216 99993286" />
+                    <input type="text" id='inputsContact1' onChange={(e)=>setPhone(e.target.value)} name="" placeholder="+216 99993286" />
                   </div>
                 </div>
                 <div className='FormContact'>
                   <div style={{marginLeft:"4%"}}>
                     <h4>Email</h4>
-                    <input style={{width:"501px",height:"39px"}} onChange={(e)=>setEmail(e.target.value)} placeholder='voter@email.com' type="text" name="" id="" />
+                    <input id='inputsContact'  onChange={(e)=>setEmail(e.target.value)} placeholder='voter@email.com' type="text"  />
                   </div>
                 </div>
                 <div className='FormContact'>
                   <div style={{marginLeft:"4%"}}>
                     <h4>subject</h4>
-                    <input style={{width:"501px",height:"39px"}} onChange={(e)=>setsubject(e.target.value)} placeholder='voter@email.com' type="text" name="" id="" />
+                    <input id='inputsContact' onChange={(e)=>setSubject(e.target.value)} placeholder='subject' type="text" name=""  />
                   </div>
                 </div>
                 <div className='FormContact'>
@@ -373,16 +418,63 @@ const sendMail = async () => {
           </div>
         </div>
       )}
-      {/* <div className='homediv-2'>
-        <div className="homediv-2-1">
-          <h1>Redefine Your Style</h1>
-          <p>Dive into our curated collection for modern women—elegant silhouettes,
-          premium textures, and effortless layering pieces that inspire confidence every day.</p>
-          <button>Expolre Now</button>
+
+      {/* Drop Announcement Section */}
+      <section className="drop-announcement">
+        <div className="drop-announcement__visual">
+          <img src={Hoodiessoon} alt="Upcoming ES winter drop" className="drop-announcement__visual-bg" />
+          <div className="drop-announcement__visual-card">
+            <span className="drop-announcement__badge">Don't miss it</span>
+            <h3>HIVER</h3>
+            <p>Winter Drop</p>
+          </div>
         </div>
-        <div className="homediv-2-2">
+        <div className="drop-announcement__content">
+          <video
+          className="drop__background-video"
+          id='dropvd'
+          src={vd}
+          autoPlay
+          loop
+          muted
+          playsInline
+          aria-hidden="true"
+        ></video>
+          <span className="drop-announcement__label">Exclusive Drop</span>
+          <h2>Coming Soon</h2>
+          <p>
+            Discover the Hiver capsule engineered for cold city nights. Tailored silhouettes,
+            insulated linings, and signature ES finishes crafted in limited quantities.
+          </p>
+          <div className="drop-announcement__countdown">
+            <div>
+              <strong>{dropCountdown.days}</strong>
+              <span>Days</span>
+            </div>
+            <div>
+              <strong>{dropCountdown.hours}</strong>
+              <span>Hours</span>
+            </div>
+            <div>
+              <strong>{dropCountdown.minutes}</strong>
+              <span>Min</span>
+            </div>
+            <div>
+              <strong>{dropCountdown.seconds}</strong>
+              <span>Sec</span>
+            </div>
+          </div>
+          <div className="drop-announcement__actions">
+            <button type="button" className="drop-announcement__secondary" onClick={() => setShowContact(true)}>
+              Notify Me
+            </button>
+            <button type="button" className="drop-announcement__secondary" onClick={() => navigate('/ProductU/Hoodies')}>
+              Explore
+            </button>
+          </div>
         </div>
-      </div> */}
+      </section>
+
       {/* Subscribe Section */}
       <div className='Subscribe-section'>
         <Toaster/>
@@ -435,9 +527,33 @@ const sendMail = async () => {
               <h4>Shop</h4>
               <ul>
                 <li>New Arrivals</li>
-                <li>Sneakers</li>
-                <li>Basketball</li>
-                <li>Tennis</li>
+                <li onClick={() => {
+                    navigate(`/ProductU/Accessories`, {
+                      state: {
+                        parentCategoryId: '69160810f85af644092dddb3',
+                        subcategoryId: '6916099bf85af644092dddf9',
+                        genre: 'men',
+                      }
+                    });
+                  }} >Baggy</li>
+                <li onClick={() => {
+                    navigate(`/ProductU/Accessories`, {
+                      state: {
+                        parentCategoryId: '691607d9f85af644092ddd9f',
+                        subcategoryId: '69160937f85af644092dddec',
+                        genre: 'men',
+                      }
+                    });
+                  }} >Basketball</li>
+                <li onClick={() => {
+                    navigate(`/ProductU/Accessories`, {
+                      state: {
+                        parentCategoryId: '691607a9f85af644092ddd86',
+                        subcategoryId: '691614d6f85af644092de02c',
+                        genre: 'men',
+                      }
+                    });
+                  }}>similicuir</li>
               </ul>
             </div>
 

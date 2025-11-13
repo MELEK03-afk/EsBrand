@@ -1,5 +1,6 @@
 import React,{useState,useEffect,useMemo,useRef} from 'react'
-import EsL from '../images/Es4.png'
+import EsL from '../images/Es42.png'
+import vd from '../images/vd.mp4'
 import { Shirt, Award, Leaf, Users,Mail,SlidersHorizontal, Eraser, X, Truck, ShieldCheck, RefreshCcw, Sparkles  } from "lucide-react";
 import { motion, useInView } from "framer-motion";
 import { Link, useNavigate } from 'react-router-dom';
@@ -35,6 +36,15 @@ const AboutComp = () => {
   return (
     <div className='AboutComp'>
         <div className='AboutComp1'>
+          <video
+            className="AboutComp1__background-video"
+            src={vd}
+            autoPlay
+            loop
+            muted
+            playsInline
+            aria-hidden="true"
+          ></video>
             <img src={EsL} alt="" />
             <h3>Where timeless design meets modern craftsmanship</h3>
             <p>
@@ -98,84 +108,84 @@ const AboutComp = () => {
                 ))}
             </div>
         </div>
-                      <footer className="products-footer">
-                        <div className="products-footer__inner">
-                          <section className="products-footer__intro">
-                            <span className="products-footer__label">ESBRAND DENIM LAB</span>
-                            <h2>Premium denim engineered for movement.</h2>
-                            <p>
-                              Chaque capsule est développée en séries limitées avec des matières flexibles,
-                              des coutures renforcées et une silhouette pensée pour la ville comme pour la scène.
-                            </p>
-                            <div className="products-footer__badges">
-                              <div className="products-footer__badge">
-                                <Sparkles size={18} />
-                                <div>
-                                  <h4>Limited Drops</h4>
-                                  <span>Moins de 300 pièces par release</span>
-                                </div>
-                              </div>
-                              <div className="products-footer__badge">
-                                <ShieldCheck size={18} />
-                                <div>
-                                  <h4>Finitions premium</h4>
-                                  <span>Garantie qualité 30 jours</span>
-                                </div>
-                              </div>
-                            </div>
-                          </section>
-                
-                          <section className="products-footer__services">
-                            <h3>Pourquoi choisir ESBrand</h3>
-                            <div className="products-footer__services-grid">
-                              <article>
-                                <Truck size={24} />
-                                <h4>Livraison express</h4>
-                                <p>Expédition 48h partout en Tunisie avec suivi en temps réel.</p>
-                              </article>
-                              <article>
-                                <RefreshCcw size={24} />
-                                <h4>Échanges faciles</h4>
-                                <p>Échange de taille offert sous 14 jours, sans paperasse.</p>
-                              </article>
-                              <article>
-                                <ShieldCheck size={24} />
-                                <h4>Paiement sécurisé</h4>
-                                <p>Transactions protégées et assistance client dédiée.</p>
-                              </article>
-                            </div>
-                          </section>
-                
-                          <section className="products-footer__newsletter">
-                            <h3>Rejoignez la Denim Drop</h3>
-                            <p>
-                              Accédez en avant-première aux sorties limitées, aux réassorts secrets et aux events privés.
-                            </p>
-                            <form className="products-footer__form" onSubmit={handleNewsletterSubmit}>
-                              <input
-                                type="email"
-                                placeholder="Votre adresse email"
-                                value={newsletterEmail}
-                                onChange={(event) => setNewsletterEmail(event.target.value)}
-                              />
-                              <button type="submit">
-                                <Sparkles size={16} />
-                                Rejoindre la liste
-                              </button>
-                            </form>
-                            <small>On n’envoie que l’essentiel, promis.</small>
-                          </section>
-                        </div>
-                
-                        <div className="products-footer__bottom">
-                          <span>© {new Date().getFullYear()} ESBrand — Denim, streetwear & confiance.</span>
-                          <div className="products-footer__bottom-links">
-                            <button type="button" onClick={scrollToTop}>Retour en haut</button>
-                            <span>•</span>
-                            <span>Conçu à Tunis</span>
-                          </div>
-                        </div>
-                      </footer>
+        <footer className="products-footer">
+          <div className="products-footer__inner">
+            <section className="products-footer__intro">
+              <span className="products-footer__label">ESBRAND DENIM LAB</span>
+              <h2>Premium denim engineered for movement.</h2>
+              <p>
+                Chaque capsule est développée en séries limitées avec des matières flexibles,
+                des coutures renforcées et une silhouette pensée pour la ville comme pour la scène.
+              </p>
+              <div className="products-footer__badges">
+                <div className="products-footer__badge">
+                  <Sparkles size={18} />
+                  <div>
+                    <h4>Limited Drops</h4>
+                    <span>Moins de 300 pièces par release</span>
+                  </div>
+                </div>
+                <div className="products-footer__badge">
+                  <ShieldCheck size={18} />
+                  <div>
+                    <h4>Finitions premium</h4>
+                    <span>Garantie qualité 30 jours</span>
+                  </div>
+                </div>
+              </div>
+            </section>
+  
+            <section className="products-footer__services">
+              <h3>Pourquoi choisir ESBrand</h3>
+              <div className="products-footer__services-grid">
+                <article>
+                  <Truck size={24} />
+                  <h4>Livraison express</h4>
+                  <p>Expédition 48h partout en Tunisie avec suivi en temps réel.</p>
+                </article>
+                <article>
+                  <RefreshCcw size={24} />
+                  <h4>Échanges faciles</h4>
+                  <p>Échange de taille offert sous 14 jours, sans paperasse.</p>
+                </article>
+                <article>
+                  <ShieldCheck size={24} />
+                  <h4>Paiement sécurisé</h4>
+                  <p>Transactions protégées et assistance client dédiée.</p>
+                </article>
+              </div>
+            </section>
+  
+            <section className="products-footer__newsletter">
+              <h3>Rejoignez la Denim Drop</h3>
+              <p>
+                Accédez en avant-première aux sorties limitées, aux réassorts secrets et aux events privés.
+              </p>
+              <form className="products-footer__form" onSubmit={handleNewsletterSubmit}>
+                <input
+                  type="email"
+                  placeholder="Votre adresse email"
+                  value={newsletterEmail}
+                  onChange={(event) => setNewsletterEmail(event.target.value)}
+                />
+                <button type="submit">
+                  <Sparkles size={16} />
+                  Rejoindre la liste
+                </button>
+              </form>
+              <small>On n’envoie que l’essentiel, promis.</small>
+            </section>
+          </div>
+  
+          <div className="products-footer__bottom">
+            <span>© {new Date().getFullYear()} ESBrand — Denim, streetwear & confiance.</span>
+            <div className="products-footer__bottom-links">
+              <button type="button" onClick={scrollToTop}>Retour en haut</button>
+              <span>•</span>
+              <span>Conçu à Tunis</span>
+            </div>
+          </div>
+        </footer>
 
     </div>
   )

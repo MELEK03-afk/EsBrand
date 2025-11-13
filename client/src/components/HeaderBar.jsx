@@ -47,6 +47,8 @@ function HeaderBar({showBag,setShowBag}   ) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const subcategoriesScrollRef = useRef(null);
+
+
   const icons = {
     Shirt,
     ShoppingBag,
@@ -61,6 +63,33 @@ function HeaderBar({showBag,setShowBag}   ) {
       return sum + (product.productId?.price * product.quantity);
     }, 0);
   }, [productCart]);
+  const [showHeader, setShowHeader] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
+
+  const controlHeader = () => {
+    const currentScrollY = window.scrollY;
+
+    if (currentScrollY > lastScrollY) {
+      // scrolling down → hide header
+      setShowHeader(false);
+    } else {
+      // scrolling up → show header
+      setShowHeader(true);
+    }
+
+    setLastScrollY(currentScrollY);
+  };
+
+  useEffect(() => {
+    window.addEventListener("scroll", controlHeader);
+
+    return () => {
+      window.removeEventListener("scroll", controlHeader);
+    };
+  }, [lastScrollY]);
+
+  
+  
   const getProducts = async () => {
     try {
       const res = await axios.get("http://192.168.1.17:2025/api/GetProduct");
@@ -560,9 +589,10 @@ function HeaderBar({showBag,setShowBag}   ) {
       <div   className='HeaderBar slide-down'>
         <Toaster/>
         <div className='HeaderBar-1'>
-          <Menu onClick={()=>(setShowMenu(!showMenu),setShowUser(false),setShowBag(false))} size={25} strokeWidth={3} style={{color:"white",marginLeft:"1%",cursor:"pointer"}}/>
-          <Link className='h1' to='/' style={{textDecoration:"none",color:"white"}}>
-            <img src={EsL} onClick={()=>(setShowMenu(false),setShowBag(false))} width={'70px'} height={'70px'} alt="" />
+          <Menu className='IconMenuHead' onClick={()=>(setShowMenu(!showMenu),setShowUser(false),setShowBag(false))} size={25} strokeWidth={3} style={{color:"white",cursor:"pointer",backgroundColor:"transparent"}}/>
+          {/* <Menu className='IconMenuHead' onClick={()=>(setShowMenu(!showMenu),setShowUser(false),setShowBag(false))} size={45} strokeWidth={3} style={{color:"white",cursor:"pointer"}}/> */}
+          <Link className='esLogoHead'  to='/' style={{textDecoration:"none",color:"white"}}>
+            <img src={EsL} onClick={()=>(setShowMenu(false),setShowBag(false))} width={'70px'} height={'70px'}  alt="" />
           </Link>
           <div className='HeaderBar-3'> 
             <div className='HeaderIcons'>
@@ -590,7 +620,7 @@ function HeaderBar({showBag,setShowBag}   ) {
         </div> 
         
         <div className='MenuUser' style={{
-            height: showMenu ? "100vh" : "0vh",
+            height: showMenu ? "90vh" : "0vh",
             paddingBottom: showMenu ? "2%" : "0%",
             transition: showMenu
               ? "min-height 0.5s ease, padding-bottom 0.5s ease" // slow open
@@ -794,7 +824,7 @@ function HeaderBar({showBag,setShowBag}   ) {
                   <h2>Total</h2>
                   <h2>{total} TND</h2>
                 </div>
-                <button style={{display: showBag ?"":"none"}} className='PdSb-bt' onClick={()=>navigate('/Commande')}>Passer Commande</button>
+                <button style={{display: showBag ?"":"none"}} className='PdSb-bt' onClick={()=>(navigate('/Commande'),setShowBag(false))}>Passer Commande</button>
               </div>
 
             </div>

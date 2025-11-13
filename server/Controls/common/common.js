@@ -587,7 +587,58 @@ export const getFilters = async (req, res) => {
   }
 };
 
+export const ContactMessage = async (req, res) => {
+  console.log("📩 /Contactez-nous endpoint HIT");
 
+  if (!req.body) {
+    console.log("❌ No body received!");
+    return res.status(400).json({ error: "No request body" });
+  }
+
+  console.log("Body received:", req.body);
+
+  const { message, phone, name, email, subject } = req.body;
+
+  try {
+    await SendEmail(message, phone, name, email, subject);
+    return res.status(200).json({ message: "Message sent successfully ✅" });
+  } catch (error) {
+    console.error("Error sending email:", error);
+    return res.status(500).json({ error: "Failed to send message ❌" });
+  }
+};
+
+
+async function SendEmail(message, Number, Name, email, subject) {
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: "meleksaket2003@gmail.com", // ✅ must match the account used for App Password
+      pass: "luxa gacz fkyb sryy", // ✅ paste without spaces
+    },
+  });
+
+  const mailOptions = {
+    from: `"${Name}" <${email}>`,
+    to: "melekesseket4@gmail.com",
+    subject: subject,
+    html: `
+      <div style="font-family: Arial, sans-serif; padding: 20px; border: 1px solid #eee;">
+        <h2 style="color: #0f766e;">New Partner Inquiry 📩</h2>
+        <p><strong>Name:</strong> ${Name}</p>
+        <p><strong>Email:</strong> ${email}</p>
+        <p><strong>Phone Number:</strong> ${Number}</p>
+        <p><strong>Message:</strong></p>
+        <p style="background: #f3f4f6; padding: 10px; border-radius: 5px;">${message}</p>
+        <hr/>
+        <p style="font-size: 12px; color: #999;">Sent automatically from the Sport Booking website.</p>
+      </div>
+    `,
+  };
+
+  // ✅ Return a Promise
+  return transporter.sendMail(mailOptions);
+}
 
 
 const GenerateToken =(id)=>{

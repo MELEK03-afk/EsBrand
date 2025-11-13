@@ -33,7 +33,7 @@ const ProductSelect = ({ setShowBag }) => {
   const getSafeImageUrl = (img) => {
     if (!img) return '/default.png';
     if (typeof img === 'string') return `http://192.168.1.17:2025/${img}`;
-    if (typeof img === 'object' && img.urls?.length) return `http://192.168.1.17:2025/${img.urls[2]}`;
+    if (typeof img === 'object' && img.urls?.length) return `http://192.168.1.17:2025/${img.urls[0]}`;
     return '/default.png';
   };
 
@@ -335,8 +335,8 @@ const ProductSelect = ({ setShowBag }) => {
                 });
                 scrollToTop();
               }} className='PS'>
-                <img src={imgUrl} alt={prod.name} style={{ width: "100%", height: '90%', objectFit:"cover", borderRadius: 8 }} />
-                <div style={{ fontSize: 12, marginTop: '2%' }}>{prod.name}</div>
+                <img src={imgUrl} alt={prod.name} style={{ width: "100%", height: '80%', objectFit: 'cover', borderRadius: 8 }} />
+                <div style={{ fontSize: 12, marginTop: '8%' }}>{prod.name}</div>
               </div>
             );
           })}

@@ -470,7 +470,7 @@ const total = useMemo(() => {
                   <p style={{ marginBottom: "8px" }}><strong>{item.productId?.price} DT</strong></p>
                   <div style={{ display: "flex", gap: "10px", justifyContent: "flex-end" }}>
                     <Edit2 size={18} style={{ cursor: "pointer" }} onClick={() => handleGoToProduct(item)} title="Modifier" />
-                    <Trash2 size={18} style={{ cursor: "pointer" }} onClick={() => setConfirmDelete(item)} title="Supprimer" />
+                    <Trash2 size={18} style={{ cursor: "pointer",color:"red" }} onClick={() => setConfirmDelete(item)} title="Supprimer" />
                   </div>
                 </div>
               </div>
