@@ -324,12 +324,12 @@ export const getCart = async (req, res) => {
 };
 
 export const updateCartItem = async (req, res) => {
-  const { userId, productId, size, color, quantity } = req.body;
-  console.log( userId, productId, size, color, quantity );
+  const { userId, productId, size, color, quantity, cartItemId, originalSize, originalColor } = req.body;
+  console.log( userId, productId, size, color, quantity, cartItemId, originalSize, originalColor );
   
   try {
-    if (!userId || !productId || !size || !color || quantity === undefined) {
-      return res.status(400).json({ message: 'All fields are required' });
+    if (!userId || quantity === undefined) {
+      return res.status(400).json({ message: 'userId and quantity are required' });
     }
 
     const cart = await Cart.findOne({ userId });
@@ -339,21 +339,51 @@ export const updateCartItem = async (req, res) => {
       return res.status(404).json({ message: 'Cart not found' });
     }
 
-    const productIndex = cart.products.findIndex(
-    p =>
-        p.productId.toString() === productId &&
-        p.size.toLowerCase() === size.toLowerCase() &&
-        p.color.toLowerCase() === color.toLowerCase()
-    );
+    let productIndex = -1;
+
+    // Method 1: Find by cartItemId (most reliable)
+    if (cartItemId) {
+      productIndex = cart.products.findIndex(
+        p => p._id.toString() === cartItemId.toString()
+      );
+    }
+    
+    // Method 2: Find by original size/color (if cartItemId not provided or not found)
+    if (productIndex === -1 && productId && originalSize && originalColor) {
+      productIndex = cart.products.findIndex(
+        p =>
+          p.productId.toString() === productId.toString() &&
+          p.size.toLowerCase() === originalSize.toLowerCase() &&
+          p.color.toLowerCase() === originalColor.toLowerCase()
+      );
+    }
+    
+    // Method 3: Fallback to new size/color (for backward compatibility)
+    if (productIndex === -1 && productId && size && color) {
+      productIndex = cart.products.findIndex(
+        p =>
+          p.productId.toString() === productId.toString() &&
+          p.size.toLowerCase() === size.toLowerCase() &&
+          p.color.toLowerCase() === color.toLowerCase()
+      );
+    }
 
     if (productIndex === -1) {
         return res.status(404).json({ message: 'Product not found in cart' });
     }
 
+    // Update quantity
     if (quantity <= 0) {
         cart.products.splice(productIndex, 1);
     } else {
         cart.products[productIndex].quantity = quantity;
+        // Update size and color if provided and different
+        if (size && cart.products[productIndex].size !== size) {
+          cart.products[productIndex].size = size;
+        }
+        if (color && cart.products[productIndex].color !== color) {
+          cart.products[productIndex].color = color;
+        }
     }
 
     cart.updatedAt = new Date();

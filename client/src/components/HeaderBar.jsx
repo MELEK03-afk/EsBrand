@@ -1,6 +1,6 @@
 import React,{useState,useEffect,useMemo,useRef} from 'react'
 import * as LucideIcons from "lucide-react";
-import { Menu,Search,UserRound,Smartphone,Footprints ,Shirt ,X ,LogOut,User,Mail, CreditCard, ArrowLeft ,Truck, MapPin,ShoppingBag,ShieldUser,Edit2,Trash2 ,Dot,MoveRight,MoveLeft   } from 'lucide-react';
+import { Menu,Search,UserRound,Smartphone,Footprints ,Shirt ,X ,LogOut,User,Mail, CreditCard, ArrowLeft ,Truck, MapPin,ShoppingBag,ShieldUser,Edit2,Trash2 ,Dot,MoveRight,MoveLeft,Minus,Plus   } from 'lucide-react';
 import { Link, useNavigate,useLocation  } from 'react-router-dom';
 import toast, { Toaster } from 'react-hot-toast';
 import { motion, AnimatePresence } from "framer-motion";
@@ -29,7 +29,7 @@ function HeaderBar({showBag,setShowBag}   ) {
   const [productCart, setProductCart] = useState([]);
   const [product, setProduct] = useState([]);
   const [sizes, setSizes] = useState([]);
-  const [quantity, setquantity] = useState([]);
+  const [quantity, setquantity] = useState(1);
   const [selectedSize, setSelectedSize] = useState('');
   const [selectedColor, setSelectedColor] = useState('');
   const [image, setImage] = useState('');
@@ -38,6 +38,9 @@ function HeaderBar({showBag,setShowBag}   ) {
   const [images, setImages] = useState([]);
   const [colors, setColors] = useState([]);
   const [showBagEdit, setShowBagEdit] = useState(false)
+  const [editingCartItem, setEditingCartItem] = useState(null)
+  const [originalSize, setOriginalSize] = useState('')
+  const [originalColor, setOriginalColor] = useState('')
   const [searchInput, setSearchInput] = useState('')
   const [Products, setProducts] = useState([]);
   const [AllProducts, setAllProducts] = useState([]);
@@ -338,23 +341,34 @@ function HeaderBar({showBag,setShowBag}   ) {
     }
   };
   const updateCartItem = async () => {
-    if (!user?.id) return;
+    if (!user?.id || !editingCartItem) return;
     try {
       const res = await axios.put('http://192.168.1.17:2025/api/cart-update', {
           userId: user.id,
+          cartItemId: editingCartItem._id, // Send the cart item ID for reliable lookup
           productId: product._id,
           size: selectedSize,
-          quantity:quantity,
-          color: selectedColor
-        
+          quantity: quantity,
+          color: selectedColor,
+          originalSize: originalSize, // Original size to find item if cartItemId fails
+          originalColor: originalColor // Original color to find item if cartItemId fails
+      }, {
+        headers: {
+          'Authorization': `Bearer ${user.token}`,
+          'Content-Type': 'application/json'
+        }
       });
 
       if (res.status === 200) {
         getProductCart();
-        setShowBagEdit(false)
+        setShowBagEdit(false);
+        setEditingCartItem(null);
+        setOriginalSize('');
+        setOriginalColor('');
       }
     } catch (error) {
       console.log(error);
+      toast.error(error.response?.data?.message || "Failed to update cart item");
     }
   };
   const filteredProducts = AllProducts.filter(product =>
@@ -373,10 +387,24 @@ function HeaderBar({showBag,setShowBag}   ) {
   return (
     <div>
 
-      {showBag && (
-        <div onClick={() => {setShowBagEdit(false),setTimeout(() => {setShowBag(false);}, 400)}} className='overflow-2'>
-        </div>
-      )}
+      <AnimatePresence>
+        {showBag && (
+          <motion.div
+            onClick={() => {
+              setShowBagEdit(false);
+              setEditingCartItem(null);
+              setOriginalSize('');
+              setOriginalColor('');
+              setTimeout(() => {setShowBag(false);}, 400);
+            }}
+            className='overflow-2'
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3, ease: "easeOut" }}
+          />
+        )}
+      </AnimatePresence>
       {showSearch && showMenu && (
         <div className='overflow'>
         </div>
@@ -619,13 +647,22 @@ function HeaderBar({showBag,setShowBag}   ) {
           </div>
         </div> 
         
-        <div className='MenuUser' style={{
-            height: showMenu ? "90vh" : "0vh",
-            paddingBottom: showMenu ? "2%" : "0%",
-            transition: showMenu
-              ? "min-height 0.5s ease, padding-bottom 0.5s ease" // slow open
-              : "min-height 0.15s ease, padding-bottom 0.15s ease" // fast close
-          }}>
+        <AnimatePresence>
+          {showMenu && (
+            <motion.div
+              className='MenuUser'
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "90vh", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{
+                height: { duration: 0.4, ease: [0.4, 0, 0.2, 1] },
+                opacity: { duration: 0.3, ease: "easeOut" }
+              }}
+              style={{
+                paddingBottom: "2%",
+                overflow: "hidden"
+              }}
+            >
           <div>
           <X onClick={()=>setShowMenu(false)} style={{display: showMenu ?"":"none",cursor:"pointer", marginLeft:"90%"}}/>
           {/* <div className='MenuGenre' style={{display: showMenu ?"":"none"}}>
@@ -644,16 +681,18 @@ function HeaderBar({showBag,setShowBag}   ) {
                     exit={{ opacity: 0, x: 30 }}
                     transition={{ duration: 0.4 }}
                   >
-                {categories.map((category) => {
+                {categories.map((category, index) => {
                   const iconName = typeof category.icon === 'string' ? category.icon.trim() : ''
                   const IconComponent = LucideIcons[iconName] || LucideIcons.Dot; // fallback to Dot if invalid
 
                   return (
-                    <span
+                    <motion.span
                       key={category._id}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.05, duration: 0.3, ease: "easeOut" }}
                       style={{
                         display: showMenu === false ? "none" : "",
-                        transition: "all 0.5s",
                       }}
                       className="SpanList"
                     >
@@ -677,7 +716,7 @@ function HeaderBar({showBag,setShowBag}   ) {
                       >
                         {category.name}
                       </h2>
-                    </span>
+                    </motion.span>
                   );
                 })}
 
@@ -745,17 +784,29 @@ function HeaderBar({showBag,setShowBag}   ) {
               )}
             </div>
           </div>
-        </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
        
-        <div id='ShoppingBag' className={`ShoppingBag ${showBag ? 'open' : ''}`} style={{overflow: "hidden",
-              transition: showBag
-                ? "width 0.5s ease, padding-bottom 0.5s ease" // slow open
-                : "width 0.15s ease, padding-bottom 0.15s ease" // fast close
-            }}>
+        <AnimatePresence>
+          {showBag && (
+            <motion.div
+              id='ShoppingBag'
+              className={`ShoppingBag ${showBag ? 'open' : ''}`}
+              initial={{ width: 0, opacity: 0, x: 100 }}
+              animate={{ width: "29%", opacity: 1, x: 0 }}
+              exit={{ width: 0, opacity: 0, x: 100 }}
+              transition={{
+                width: { duration: 0.4, ease: [0.4, 0, 0.2, 1] },
+                opacity: { duration: 0.3, ease: "easeOut" },
+                x: { duration: 0.4, ease: [0.4, 0, 0.2, 1] }
+              }}
+              style={{ overflow: "hidden" }}
+            >
           {productCart.cart?.products?.length === 0 || !user ?(          
             <div>
               <X className='XMobileBag' onClick={()=>setShowBag(false)} style={{display: showBag ?"":"none",cursor:"pointer", marginLeft:"90%"}}/>
-              <ArrowLeft  onClick={()=>setShowBag(false)} style={{display: showBag ?"":"none",cursor:"pointer", marginLeft:"2%"}}/>
+              <ArrowLeft className='IconMobileShoppingCard'  onClick={()=>setShowBag(false)} style={{display: showBag ?"":"none",cursor:"pointer", marginLeft:"2%"}}/>
               <h3 style={{textAlign:"center",position:"relative",top:"-10px",display: showBag ?"":"none"}}>ShoppingBag</h3>
               
               {/* Empty Cart Message */}
@@ -786,20 +837,31 @@ function HeaderBar({showBag,setShowBag}   ) {
             </div>
           ):(
             <div className='PdSb'>
-              <X onClick={() => {
-                setShowBagEdit(false); // first
-                setTimeout(() => {
-                  setShowBag(false); // after 0.5s
-                }, 400);
-              }} style={{display: showBag ?"":"none",cursor:"pointer", marginLeft:"90%"}}/>
-              <h3 style={{textAlign:"center",position:"relative",top:"0px",display: showBag ?"":"none"}}>ShoppingBag <ShoppingBag style={{position:"relative",top:"5px",left:"1%"}}/> </h3>
+              <div className='PdSbHeader'>
+                <h3 style={{display: showBag ?"":"none"}}>Shopping Bag <ShoppingBag size={20} /> </h3>
+                <X onClick={() => {
+                  setShowBagEdit(false); // first
+                  setEditingCartItem(null);
+                  setOriginalSize('');
+                  setOriginalColor('');
+                  setTimeout(() => {
+                    setShowBag(false); // after 0.5s
+                  }, 400);
+                }} style={{display: showBag ?"":"none",marginRight:"2%",cursor:"pointer"}}/>
+              </div>
               <div className='PdSb-1'>
               {productCart?.cart?.products?.map((product, index) => {
                 // Use getImageByColor to get the correct image for the product's color
                 const imageUrl = getImageByColor(product.productId, product.color, 0);
                 
                 return (
-                  <div className='PdSp-2' key={product._id || index}>
+                  <motion.div
+                    className='PdSp-2'
+                    key={product._id || index}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.1, duration: 0.3, ease: "easeOut" }}
+                  >
                     {imageUrl && <img src={imageUrl} alt="Product" onError={(e) => {
                       console.log('Image failed to load:', imageUrl);
                       e.target.style.display = 'none';
@@ -807,35 +869,69 @@ function HeaderBar({showBag,setShowBag}   ) {
                     <div className='PdSp-3'>
                       <div className='PdSp-4'>
                         <h4>{ product.productId?.price}TND</h4>
-                        <Edit2 size={19} onClick={()=>(setShowBagEdit(true),setquantity(product.quantity),GetPById(product.productId._id))} style={{cursor:"pointer"}} />
-                        <Trash2 size={19} style={{cursor:"pointer"}} onClick={() => DeletePrdCart(product)} />
+                        <Edit2 size={19} onClick={() => {
+                          setEditingCartItem(product);
+                          setShowBagEdit(true);
+                          setquantity(product.quantity);
+                          setSelectedSize(product.size);
+                          setSelectedColor(product.color);
+                          setOriginalSize(product.size); // Store original size
+                          setOriginalColor(product.color); // Store original color
+                          GetPById(product.productId._id);
+                        }} style={{cursor:"pointer"}} />
+                        <Trash2 size={19} style={{cursor:"pointer",color:"red"}} onClick={() => DeletePrdCart(product)} />
                       </div>
                       <p>{product.productId?.name}</p>
                       <p>Size: {product.size}</p>
                       <p>Color: {product.color}</p>
                       <p>Quantity: {product.quantity}</p>
                     </div>
-                  </div>
+                  </motion.div>
                 );
               })}
               </div>
               <div className='detailsTotal'>
                 <div className='total' style={{display: showBag ?"":"none"}}>
-                  <h2>Total</h2>
-                  <h2>{total} TND</h2>
+                  <h2>Subtotal</h2>
+                  <h2 style={{fontWeight:"600",color:"black"}}>{total}.00 TND</h2>
+                </div>
+                <div className='total' style={{display: showBag ?"":"none"}}>
+                  <h2>Shipping</h2>
+                  <h2 style={{fontWeight:"600",color:"black"}}>9.9 TND</h2>
+                </div>
+                <div className='TotlaPDSBborder'></div>
+                <div className='total' style={{display: showBag ?"":"none"}}>
+                  <h2 style={{color:"black",fontSize:"16px"}}>Total</h2>
+                  <h2 style={{fontWeight:"600",color:"black"}}>{total+9.9} TND</h2>
                 </div>
                 <button style={{display: showBag ?"":"none"}} className='PdSb-bt' onClick={()=>(navigate('/Commande'),setShowBag(false))}>Passer Commande</button>
               </div>
 
             </div>
           )}
-        </div>
-        <div className={`ShoppingBag-Edit ${showBagEdit ? 'open' : ''}`} style={{overflow: "hidden",
-              transition: showBag
-                ? "width 0.5s ease, padding-bottom 0.5s ease" // slow open
-                : "width 0.15s ease, padding-bottom 0.15s ease" // fast close
-            }}>
-          <X onClick={()=>setShowBagEdit(false)} style={{display: showBagEdit ?"":"none",cursor:"pointer", marginLeft:"90%"}}/>
+            </motion.div>
+          )}
+        </AnimatePresence>
+        <AnimatePresence>
+          {showBagEdit && (
+            <motion.div
+              className={`ShoppingBag-Edit ${showBagEdit ? 'open' : ''}`}
+              initial={{ width: 0, opacity: 0, x: 100 }}
+              animate={{ width: "29%", opacity: 1, x: 0 }}
+              exit={{ width: 0, opacity: 0, x: 100 }}
+              transition={{
+                width: { duration: 0.4, ease: [0.4, 0, 0.2, 1] },
+                opacity: { duration: 0.3, ease: "easeOut" },
+                x: { duration: 0.4, ease: [0.4, 0, 0.2, 1] }
+              }}
+              style={{ overflow: "hidden" }}
+            >
+          <X onClick={() => {
+            setShowBagEdit(false);
+            setEditingCartItem(null);
+            setOriginalSize('');
+            setOriginalColor('');
+          }} style={{display: showBagEdit ?"":"none",cursor:"pointer", marginLeft:"90%"}}/>
           <h3 style={{display: showBagEdit ?"":"none",position:"absolute"}}>{name}</h3>
           {image && <img style={{display: showBagEdit ?"":"none"}} src={image} alt="Product" />}
           <div className="colorSwatches">
@@ -881,10 +977,38 @@ function HeaderBar({showBag,setShowBag}   ) {
               </button>
             ))}
           </div>
+          <div className="quantitySelector" style={{ display: showBagEdit ? "" : "none" }}>
+            <h4 >Quantity</h4>
+
+            <div className="controls">
+              <button
+                onClick={() => {
+                  if (quantity > 1) setquantity(quantity - 1);
+                }}
+                disabled={quantity <= 1}
+                className={`btn ${quantity <= 1 ? "disabled" : ""}`}
+              >
+                <Minus size={18} />
+              </button>
+
+              <span className="value">{quantity}</span>
+
+              <button
+                onClick={() => {
+                  setquantity(quantity + 1);
+                }}
+                className="btn"
+              >
+                <Plus size={18} />
+              </button>
+            </div>
+          </div>
           <div className='EditShopBorder' style={{display: showBagEdit ?"":"none"}}>
             <button className='Update' onClick={updateCartItem} >Update</button>
           </div>
-        </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
 
         {user && ShowUser && (
